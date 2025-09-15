@@ -1,5 +1,11 @@
-# ui
+# MoneyLens UI
 
+MoneyLens UI is designed to provide a seamless and intuitive user experience for managing personal finances. The interface emphasizes clarity, responsiveness, and ease of navigation, enabling users to track expenses, visualize financial data, and interact with core features efficiently. Built with modern web technologies, MoneyLens UI aims to make financial management accessible and engaging for everyone.
+
+
+The MoneyLens UI leverages React for building dynamic user interfaces, Refine for rapid development of data-driven applications, and Tailwind CSS for utility-first styling. This combination ensures a robust, scalable, and visually appealing frontend architecture, enabling efficient development and a consistent user experience across devices.
+
+<details>
 <div align="center" style="margin: 30px;">
     <a href="https://refine.dev">
     <img alt="refine logo" src="https://refine.ams3.cdn.digitaloceanspaces.com/readme/refine-readme-banner.png">
@@ -41,6 +47,8 @@ To learn more about **Refine**, please check out the [Documentation](https://ref
 
 - **Supabase Data Provider** [Docs](https://refine.dev/docs/core/providers/data-provider/#overview)
 - **Tailwind CSS** [Docs](https://refine.dev/docs/guides-concepts/general-concepts/#headless-concept)
+
+</details>
 
 ## License
 
