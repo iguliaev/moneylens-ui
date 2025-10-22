@@ -13,6 +13,9 @@ import type {
   Category,
   BankAccount,
   Tag,
+  BulkUploadPayload,
+  BulkUploadResult,
+  BulkUploadError,
 } from "./types";
 
 // Helper to order by when needed
@@ -393,6 +396,46 @@ export const DataApi = {
     const { data, error } = await q;
     if (error) throw error;
     return data as TaggedTypeTotalsRow[];
+  },
+
+  // Bulk upload RPC wrapper (Task 5)
+  async bulkUploadTransactions(payload: BulkUploadPayload): Promise<BulkUploadResult> {
+    // Supabase RPC expects the parameter name to match function signature: p_transactions
+    const { data, error } = await db.rpc("bulk_insert_transactions", {
+      p_transactions: payload.transactions,
+    });
+
+    if (error) {
+      // Supabase error may include a `details` or `message` field containing the exception DETAIL
+      // Attempt to parse structured JSON from error.details (or error.message as fallback)
+      const raw = (error as any).details ?? (error as any).message ?? null;
+      let details: BulkUploadError[] = [];
+      if (raw) {
+        try {
+          // error.details is often a stringified JSON array
+          details = JSON.parse(raw) as BulkUploadError[];
+        } catch (e) {
+          // If parsing fails, keep a single generic error entry
+          details = [
+            {
+              index: 0,
+              error: String(raw),
+            },
+          ];
+        }
+      }
+
+      const structured = {
+        message: error.message ?? "Bulk upload failed",
+        details,
+        originalError: error,
+      };
+
+      throw structured;
+    }
+
+    // RPC returns jsonb; when using supabase-js it may be returned as object or array
+    return (Array.isArray(data) ? data[0] : data) as BulkUploadResult;
   },
 
   // Convenience: current month/year helpers
