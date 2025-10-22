@@ -107,3 +107,29 @@ export interface Tag {
   updated_at: string;
   in_use_count?: number; // populated from tags_with_usage
 }
+
+// Types for bulk upload feature (Task 4)
+export interface BulkTransactionInput {
+  date: string; // YYYY-MM-DD format
+  type: TransactionType;
+  amount: number;
+  category?: string | null; // Category name (optional)
+  bank_account?: string | null; // Bank account name (optional)
+  tags?: string[] | null; // Array of tag names (optional)
+  notes?: string | null; // Free text notes (optional)
+}
+
+export interface BulkUploadPayload {
+  transactions: BulkTransactionInput[];
+}
+
+export interface BulkUploadResult {
+  success: boolean;
+  inserted_count: number;
+  total_count: number;
+}
+
+export interface BulkUploadError {
+  index: number; // 1-based index matching input order
+  error: string;
+}
