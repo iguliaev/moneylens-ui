@@ -13,6 +13,8 @@ import type {
   Category,
   BankAccount,
   Tag,
+  BulkUploadPayload,
+  BulkUploadResult,
 } from "./types";
 
 // Helper to order by when needed
@@ -306,6 +308,29 @@ export const DataApi = {
     });
     if (error) throw error;
     return (data as unknown as number) ?? 0;
+  },
+
+  // Bulk upload RPC
+  async bulkUploadTransactions(payload: BulkUploadPayload): Promise<BulkUploadResult> {
+    const { data, error } = await db.rpc("bulk_insert_transactions", {
+      p_transactions: payload.transactions,
+    });
+    if (error) {
+      // Try to parse structured error details returned in error.details
+      let details: any[] = [];
+      try {
+        if (error.details) {
+          details = JSON.parse(error.details);
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+      const err: any = new Error(error.message ?? "RPC error");
+      err.details = details;
+      err.originalError = error;
+      throw err;
+    }
+    return data as BulkUploadResult;
   },
 
   // Views: totals by month/type
