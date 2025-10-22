@@ -50,6 +50,60 @@ To learn more about **Refine**, please check out the [Documentation](https://ref
 
 </details>
 
+## Deployment (Vercel)
+
+This project is deployed on Vercel with two environments:
+
+- Pre-production (Vercel Preview): all branches except `release` deploy here automatically.
+- Production (Vercel Production): the `release` branch deploys here automatically.
+
+
+No GitHub Actions are required for deploys; Vercel will build and deploy automatically on pushes/PRs according to the branch rules above.
+
+### Branch → Environment mapping
+
+- `release` → Production deployment
+- any other branch (including `main`) → Preview deployment (preproduction)
+
+
+## Development workflow
+
+Short-lived branches are created off `main`, changes are merged via PR, and deploys happen automatically:
+
+1) Start work
+
+- Branch from `main`: `feature/*`, `bugfix/*`, or `chore/*`.
+- Push commits and open a PR into `main`.
+
+2) CI & review
+
+- PR builds a Vercel Preview automatically (preproduction URL).
+- Reviewers verify changes using the Preview URL and approve the PR.
+
+3) Merge to `main`
+
+- After merge, the `main` branch continues to deploy to the preproduction (Preview) environment.
+
+4) Promote to production via `release`
+
+- When a releasable set of features is ready, open a PR from `main` → `release`.
+- Merging into `release` automatically deploys to the Production environment on Vercel.
+
+### Hotfixes (optional)
+
+- For urgent production fixes, create `hotfix/*` from `release`, open a PR into `release` (deploys to Production on merge), then synchronize those changes back to `main` (PR `release` → `main` or re-merge the hotfix).
+
+### Best practices
+
+- Prefer squash merges into `main` to keep history clean.
+- Keep `release` fast-forward or synced from `main` via PRs to avoid drift.
+
+## Operating notes
+
+- Preview URLs are unique per commit/PR—share them in code reviews and QA.
+- Environment variables in Vercel are injected at build time; update and redeploy if they change.
+
+
 ## License
 
 MIT
