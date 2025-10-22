@@ -15,6 +15,7 @@ import type {
   Tag,
   BulkUploadPayload,
   BulkUploadResult,
+  BulkUploadError,
 } from "./types";
 
 // Helper to order by when needed
