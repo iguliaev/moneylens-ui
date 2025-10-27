@@ -19,7 +19,7 @@ import type {
 } from "./types";
 
 // Typed RPC error wrapper so callers can inspect structured details
-class RpcError extends Error {
+export class RpcError extends Error {
   details: BulkUploadError[];
   originalError: unknown;
 

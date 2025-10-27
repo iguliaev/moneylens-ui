@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { DataApi } from "@/providers/data-provider/api";
+import { DataApi, RpcError } from "@/providers/data-provider/api";
 import type {
   BulkUploadPayload,
   BulkUploadResult,
@@ -103,12 +103,12 @@ export function BulkUploadCard() {
       setResult(res as BulkUploadResult);
       setFile(null);
       clearFileInput();
-    } catch (err: any) {
-      // Expect structured error with details
-      if (err && (err as any).details && Array.isArray((err as any).details)) {
-        setErrors((err as any).details as BulkUploadError[]);
-      } else if (err && (err as any).message) {
-        setFileError((err as any).message);
+    } catch (err: unknown) {
+      // Prefer the typed RpcError with structured details
+      if (err instanceof RpcError) {
+        setErrors(err.details ?? []);
+      } else if (err instanceof Error) {
+        setFileError(err.message);
       } else {
         setFileError(String(err));
       }
