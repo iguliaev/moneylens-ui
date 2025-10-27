@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BulkUploadCard } from "@/components/bulk-upload/BulkUploadCard";
 
 export default function SettingsPage() {
   return (
@@ -26,6 +27,13 @@ export default function SettingsPage() {
             </Link>
           </li>
         </ul>
+      </section>
+
+      <section className="border rounded p-4">
+        <h2 className="text-lg font-medium mb-4">Upload Data</h2>
+        <div className="max-w-2xl">
+          <BulkUploadCard />
+        </div>
       </section>
     </div>
   );
