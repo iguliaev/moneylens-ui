@@ -103,7 +103,8 @@ export function BulkUploadCard() {
 
       setResult(res as BulkUploadResult);
       setFile(null);
-      (document.getElementById("bulk-upload-input") as HTMLInputElement | null)?.value && ((document.getElementById("bulk-upload-input") as HTMLInputElement).value = "");
+      const input = document.getElementById("bulk-upload-input") as HTMLInputElement | null;
+      if (input) input.value = "";
     } catch (err: any) {
       // Expect structured error with details
       if (err && (err as any).details && Array.isArray((err as any).details)) {
