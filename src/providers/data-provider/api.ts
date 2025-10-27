@@ -18,6 +18,13 @@ import type {
   BulkUploadError,
 } from "./types";
 
+// Internal source enum for transaction queries
+type TransactionSource =
+  | 'transactions'
+  | 'transactions_spend'
+  | 'transactions_earn'
+  | 'transactions_save';
+
 // Helper to order by when needed
 const order = <T>(query: any, column: string, ascending: boolean) =>
   query.order(column, { ascending });
@@ -142,16 +149,29 @@ export const DataApi = {
     }
   },
 
-  async listTransactions(params: ListTransactionsParams = {}): Promise<Transaction[]> {
-    let q = db.from("transactions").select("*");
+  /**
+   * Internal helper: query transactions from a specific source (base table
+   * or one of the type-specific views). Applies the common filters,
+   * pagination and sorting logic.
+   */
+  async _listTransactionsFromSource(
+    source: TransactionSource,
+    params: ListTransactionsParams = {}
+  ): Promise<Transaction[]> {
+    let q = db.from(source).select("*");
 
     if (params.from) q = q.gte("date", params.from);
     if (params.to) q = q.lte("date", params.to);
-  if (params.type) q = q.eq("type", params.type);
-  // Filter by authoritative FK only
-  if (params.categoryId) q = q.eq("category_id", params.categoryId);
-  if (params.bankAccountId) q = q.eq("bank_account_id", params.bankAccountId);
+
+    // Type filter only applies when querying base table. Views are already
+    // pre-filtered by type.
+    if (source === 'transactions' && params.type) q = q.eq("type", params.type);
+
+    // Filter by authoritative FK only
+    if (params.categoryId) q = q.eq("category_id", params.categoryId);
+    if (params.bankAccountId) q = q.eq("bank_account_id", params.bankAccountId);
     if (params.bank_account) q = q.eq("bank_account", params.bank_account);
+
     if (params.tagsAny?.length) q = q.overlaps("tags", params.tagsAny);
     if (params.tagsAll?.length) q = q.contains("tags", params.tagsAll);
 
@@ -162,6 +182,21 @@ export const DataApi = {
     const { data, error } = await q;
     if (error) throw error;
     return data as Transaction[];
+  },
+
+  /**
+   * Public method: list transactions. Selects a type-specific view when the
+   * `type` parameter is provided (common case for type pages), otherwise
+   * falls back to the base `transactions` table for cross-type queries.
+   */
+  async listTransactions(params: ListTransactionsParams = {}): Promise<Transaction[]> {
+    let source: TransactionSource = 'transactions';
+
+    if (params.type === 'spend') source = 'transactions_spend';
+    else if (params.type === 'earn') source = 'transactions_earn';
+    else if (params.type === 'save') source = 'transactions_save';
+
+    return this._listTransactionsFromSource(source, params);
   },
 
   async createSpend(input: {

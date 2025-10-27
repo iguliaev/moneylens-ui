@@ -5,8 +5,23 @@ export interface Transaction {
   user_id: string;
   date: string; // YYYY-MM-DD
   type: TransactionType;
+  /**
+   * Resolved category name (from view or legacy `category` field).
+   */
   category: string | null;
+
+  /**
+   * Authoritative FK id for the category (may be present when querying
+   * the base table or the enriched views). Useful for pre-selecting dropdowns
+   * in edit forms.
+   */
   category_id?: string | null;
+
+  /**
+   * Authoritative FK id for the bank account (may be present when querying
+   * the base table or the enriched views). Useful for pre-selecting dropdowns
+   * in edit forms.
+   */
   bank_account_id?: string | null;
   amount: number;
   tags: string[] | null;
