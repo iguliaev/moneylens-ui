@@ -90,7 +90,7 @@ export function BulkUploadCard() {
       const payload: BulkUploadPayload = { transactions: transactions as any };
 
   // Call DataApi RPC method
-  const res = await (DataApi as any).bulkUploadTransactions(payload);
+  const res = await (DataApi.bulkUploadTransactions as (payload: BulkUploadPayload) => Promise<BulkUploadResult>)(payload);
 
       setResult(res as BulkUploadResult);
       setFile(null);
