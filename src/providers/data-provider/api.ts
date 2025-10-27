@@ -18,6 +18,19 @@ import type {
   BulkUploadError,
 } from "./types";
 
+// Typed RPC error wrapper so callers can inspect structured details
+class RpcError extends Error {
+  details: BulkUploadError[];
+  originalError: unknown;
+
+  constructor(message: string, details: BulkUploadError[] = [], originalError: unknown = null) {
+    super(message);
+    this.name = "RpcError";
+    this.details = details;
+    this.originalError = originalError;
+  }
+}
+
 // Internal source enum for transaction queries
 type TransactionSource =
   | 'transactions'
@@ -361,10 +374,8 @@ export const DataApi = {
       } catch (e) {
         // ignore parse errors
       }
-      const err: any = new Error(error.message ?? "RPC error");
-      err.details = details;
-      err.originalError = error;
-      throw err;
+  // Throw a typed RpcError so callers can inspect structured details
+  throw new RpcError(error.message ?? "RPC error", details, error);
     }
     return data as BulkUploadResult;
   },

@@ -46,6 +46,12 @@ export function BulkUploadCard() {
     setFile(selected);
   };
 
+  // Helper to clear the native file input element's value
+  const clearFileInput = () => {
+    const input = document.getElementById("bulk-upload-input") as HTMLInputElement | null;
+    if (input) input.value = "";
+  };
+
   const handleUpload = async () => {
     setFileError(null);
     setResult(null);
@@ -73,22 +79,15 @@ export function BulkUploadCard() {
       let transactions: unknown[] = [];
       if (Array.isArray(parsed)) {
         transactions = parsed;
-      } else if (
-        typeof parsed === "object" &&
-        parsed !== null
-      ) {
+      } else if (typeof parsed === "object" && parsed !== null) {
         const obj = parsed as Record<string, unknown>;
-        if (
-          obj.transactions &&
-          Array.isArray(obj.transactions)
-        ) {
+        if (obj.transactions && Array.isArray(obj.transactions)) {
           transactions = obj.transactions as unknown[];
         } else {
           setFileError("JSON must be an array of transactions or an object with a 'transactions' array.");
           setIsUploading(false);
           return;
         }
-      }
       } else {
         setFileError("JSON must be an array of transactions or an object with a 'transactions' array.");
         setIsUploading(false);
@@ -96,15 +95,14 @@ export function BulkUploadCard() {
       }
 
       // Basic client-side validation for shape
-      const payload: BulkUploadPayload = { transactions: transactions as any };
+      const payload: BulkUploadPayload = { transactions: transactions as any[] };
 
-  // Call DataApi RPC method
-  const res = await (DataApi.bulkUploadTransactions as (payload: BulkUploadPayload) => Promise<BulkUploadResult>)(payload);
+      // Call DataApi RPC method
+      const res = await DataApi.bulkUploadTransactions(payload);
 
       setResult(res as BulkUploadResult);
       setFile(null);
-      const input = document.getElementById("bulk-upload-input") as HTMLInputElement | null;
-      if (input) input.value = "";
+      clearFileInput();
     } catch (err: any) {
       // Expect structured error with details
       if (err && (err as any).details && Array.isArray((err as any).details)) {
@@ -163,7 +161,7 @@ export function BulkUploadCard() {
               setFileError(null);
               setResult(null);
               setErrors([]);
-              (document.getElementById("bulk-upload-input") as HTMLInputElement | null)?.value && ((document.getElementById("bulk-upload-input") as HTMLInputElement).value = "");
+              clearFileInput();
             }}
             className="px-3 py-2 border rounded text-sm"
           >
