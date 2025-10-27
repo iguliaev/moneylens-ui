@@ -75,11 +75,20 @@ export function BulkUploadCard() {
         transactions = parsed;
       } else if (
         typeof parsed === "object" &&
-        parsed !== null &&
-        (parsed as any).transactions &&
-        Array.isArray((parsed as any).transactions)
+        parsed !== null
       ) {
-        transactions = (parsed as any).transactions;
+        const obj = parsed as Record<string, unknown>;
+        if (
+          obj.transactions &&
+          Array.isArray(obj.transactions)
+        ) {
+          transactions = obj.transactions as unknown[];
+        } else {
+          setFileError("JSON must be an array of transactions or an object with a 'transactions' array.");
+          setIsUploading(false);
+          return;
+        }
+      }
       } else {
         setFileError("JSON must be an array of transactions or an object with a 'transactions' array.");
         setIsUploading(false);
