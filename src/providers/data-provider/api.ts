@@ -353,7 +353,7 @@ export const DataApi = {
     });
     if (error) {
       // Try to parse structured error details returned in error.details
-      let details: any[] = [];
+      let details: BulkUploadError[] = [];
       try {
         if (error.details) {
           details = JSON.parse(error.details);
