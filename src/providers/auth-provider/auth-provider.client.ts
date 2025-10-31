@@ -87,6 +87,73 @@ export const authProviderClient: AuthProvider = {
       },
     };
   },
+  // Sends a password reset email. Uses Supabase resetPasswordForEmail and
+  // redirects to our /auth/confirm endpoint which exchanges the token.
+  forgotPassword: async ({ email }) => {
+    try {
+      const { error } = await supabaseBrowserClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/auth/confirm?next=/update-password`,
+        }
+      )
+
+      if (error) {
+        return {
+          success: false,
+          error,
+        }
+      }
+
+      return {
+        success: true,
+      }
+    } catch (err: any) {
+      return {
+        success: false,
+        error: {
+          name: 'ForgotPasswordError',
+          message: err?.message ?? 'Failed to send reset email',
+        },
+      }
+    }
+  },
+
+  // Updates the currently authenticated user's password.
+  updatePassword: async ({ password }) => {
+    try {
+      const { data, error } = await supabaseBrowserClient.auth.updateUser({
+        password,
+      })
+
+      if (error) {
+        return {
+          success: false,
+          error,
+        }
+      }
+
+      if (data?.user) {
+        return {
+          success: true,
+          redirectTo: '/dashboard',
+        }
+      }
+
+      return {
+        success: false,
+        error: {
+          name: 'UpdatePasswordError',
+          message: 'Failed to update password',
+        },
+      }
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err,
+      }
+    }
+  },
   check: async () => {
     const { data, error } = await supabaseBrowserClient.auth.getUser();
     const { user } = data;
