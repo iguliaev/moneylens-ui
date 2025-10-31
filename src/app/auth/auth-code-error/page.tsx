@@ -2,11 +2,26 @@
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 
 function AuthCodeErrorContent() {
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
+
+  // Limit displayed error length to avoid layout issues
+  const MAX_ERROR_LEN = 300
+  const defaultMessage = 'The authentication link is invalid or has expired.'
+  const rawMessage = error ?? null
+  const displayError = rawMessage
+    ? rawMessage.length > MAX_ERROR_LEN
+      ? rawMessage.slice(0, MAX_ERROR_LEN) + '…'
+      : rawMessage
+    : defaultMessage
+
+  useEffect(() => {
+    const el = document.getElementById('auth-error-heading')
+    if (el) el.focus()
+  }, [])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -14,6 +29,7 @@ function AuthCodeErrorContent() {
         <div className="text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <svg
+              aria-hidden="true"
               className="h-6 w-6 text-red-600"
               fill="none"
               strokeLinecap="round"
@@ -25,11 +41,11 @@ function AuthCodeErrorContent() {
               <path d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+          <h1 id="auth-error-heading" tabIndex={-1} className="mt-4 text-2xl font-bold text-gray-900">
             Authentication Error
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            {error ?? 'The authentication link is invalid or has expired.'}
+          <p role="alert" aria-live="polite" className="mt-2 text-sm text-gray-600">
+            {displayError}
           </p>
         </div>
 
