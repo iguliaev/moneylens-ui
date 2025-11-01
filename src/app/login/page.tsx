@@ -2,7 +2,6 @@ import { AuthPage } from "@components/auth-page";
 import { MagicLinkForm } from "@components/auth-page/magic-link-form";
 import { authProviderServer } from "@providers/auth-provider/auth-provider.server";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
 export default async function Login() {
   const data = await getData();
@@ -29,9 +28,7 @@ export default async function Login() {
       {/* Magic Link Login */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Login with Magic Link</h2>
-        <Suspense fallback={<div className="text-center text-sm text-gray-500">Loading...</div>}>
-          <MagicLinkForm />
-        </Suspense>
+        <MagicLinkForm />
       </div>
     </div>
   );

@@ -20,15 +20,16 @@ export function MagicLinkForm() {
         options: {
           emailRedirectTo: `${window.location.origin}/auth/confirm?next=/dashboard`,
         },
-      } as any)
+      })
 
       if (error) {
-        setError(error.message)
+        setError(error.message || 'Failed to send magic link')
       } else {
         setSent(true)
       }
-    } catch (err: any) {
-      setError(err?.message ?? 'Failed to send magic link')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred while sending the magic link'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
