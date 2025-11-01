@@ -3,7 +3,7 @@
 import { DataApi } from "@providers/data-provider/api";
 import type { MonthlyTotalsRow, Transaction, Category, BankAccount, Tag } from "@providers/data-provider/types";
 import TagsMultiSelect from "@components/tags/multi-select";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "GBP" }).format(n);
@@ -71,7 +71,7 @@ export default function SpendPage() {
 
   const monthLabel = useMemo(() => new Date(month).toLocaleDateString(undefined, { month: "long", year: "numeric" }), [month]);
 
-  async function reload() {
+  const reload = useCallback(async () => {
     const end = endOfMonthFromStart(month);
     const from = filters.from || month;
     const to = filters.to || end;
@@ -108,7 +108,7 @@ export default function SpendPage() {
     setMonthlyTotals(totalsRes);
     setRows(rowsRes);
     setFilteredTotal(filteredSum as number | null);
-  }
+  }, [month, filters, pageSize, page, bankAccounts]);
 
   useEffect(() => {
     let mounted = true;
@@ -137,7 +137,7 @@ export default function SpendPage() {
     return () => {
       mounted = false;
     };
-  }, [month, page, pageSize]);
+  }, [month, page, pageSize, reload]);
 
   useEffect(() => {
     // when month changes, sync default filter range
