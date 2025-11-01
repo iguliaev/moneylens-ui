@@ -3,7 +3,7 @@
 import { DataApi } from "@providers/data-provider/api";
 import type { MonthlyTotalsRow, Transaction, Category, BankAccount, Tag } from "@providers/data-provider/types";
 import TagsMultiSelect from "@components/tags/multi-select";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "GBP" }).format(n);
@@ -63,7 +63,7 @@ export default function EarnPage() {
 
   const monthLabel = useMemo(() => new Date(month).toLocaleDateString(undefined, { month: "long", year: "numeric" }), [month]);
 
-  async function reload() {
+  const reload = useCallback(async () => {
     const end = endOfMonthFromStart(month);
     const from = filters.from || month;
     const to = filters.to || end;
@@ -100,7 +100,7 @@ export default function EarnPage() {
     setMonthlyTotals(totalsRes);
     setRows(rowsRes);
     setFilteredTotal(filteredSum as number | null);
-  }
+  }, [month, filters, pageSize, page, bankAccounts]);
 
   useEffect(() => {
     let mounted = true;
@@ -129,7 +129,7 @@ export default function EarnPage() {
     return () => {
       mounted = false;
     };
-  }, [month, page, pageSize]);
+  }, [month, page, pageSize, reload]);
 
   useEffect(() => {
     setFilters((f) => ({ ...f, from: month, to: endOfMonthFromStart(month) }));

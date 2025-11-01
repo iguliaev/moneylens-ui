@@ -51,7 +51,7 @@ export function MagicLinkForm() {
             <h3 className="text-sm font-medium text-green-800">Check your email</h3>
             <div className="mt-2 text-sm text-green-700">
               <p>
-                We've sent a magic link to <strong>{email}</strong>. Click the link to sign in.
+                A magic link has been sent to <strong>{email}</strong>. Click the link to sign in.
               </p>
             </div>
           </div>
