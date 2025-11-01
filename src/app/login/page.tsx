@@ -1,6 +1,8 @@
 import { AuthPage } from "@components/auth-page";
+import { MagicLinkForm } from "@components/auth-page/magic-link-form";
 import { authProviderServer } from "@providers/auth-provider/auth-provider.server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export default async function Login() {
   const data = await getData();
@@ -9,7 +11,30 @@ export default async function Login() {
     redirect(data?.redirectTo || "/");
   }
 
-  return <AuthPage type="login" />;
+  return (
+    <div className="space-y-6">
+      {/* Existing password-based login */}
+      <AuthPage type="login" />
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-2 text-gray-500">Or</span>
+        </div>
+      </div>
+
+      {/* Magic Link Login */}
+      <div>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Login with Magic Link</h2>
+        <Suspense fallback={<div className="text-center text-sm text-gray-500">Loading...</div>}>
+          <MagicLinkForm />
+        </Suspense>
+      </div>
+    </div>
+  );
 }
 
 async function getData() {
