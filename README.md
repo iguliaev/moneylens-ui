@@ -50,6 +50,26 @@ To learn more about **Refine**, please check out the [Documentation](https://ref
 
 </details>
 
+## Authentication
+
+MoneyLens uses Supabase Auth with the following methods:
+
+### Email & Password
+- Traditional email/password login
+- Email confirmation optional
+- Secure password requirements
+
+### Magic Link (Passwordless)
+- One-click login via email
+- No password required
+- Secure token-based authentication
+- Tokens expire after 1 hour
+
+### Password Reset
+- Self-service password reset via email
+- Secure token-based verification
+- Tokens are single-use and expire after 1 hour
+
 ## Deployment (Vercel)
 
 This project is deployed on Vercel with two environments:
