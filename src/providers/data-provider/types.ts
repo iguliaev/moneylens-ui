@@ -123,7 +123,24 @@ export interface Tag {
   in_use_count?: number; // populated from tags_with_usage
 }
 
-// Types for bulk upload feature (Task 4)
+// Types for bulk upload feature (Task 3.1 - Entity Types)
+export interface CategoryInput {
+  type: TransactionType;
+  name: string;
+  description?: string | null;
+}
+
+export interface BankAccountInput {
+  name: string;
+  description?: string | null;
+}
+
+export interface TagInput {
+  name: string;
+  description?: string | null;
+}
+
+// Types for bulk upload feature (existing - Transaction Type)
 export interface BulkTransactionInput {
   date: string; // YYYY-MM-DD format
   type: TransactionType;
@@ -134,14 +151,27 @@ export interface BulkTransactionInput {
   notes?: string | null; // Free text notes (optional)
 }
 
+// Extended bulk upload payload supporting entities
 export interface BulkUploadPayload {
-  transactions: BulkTransactionInput[];
+  categories?: CategoryInput[];
+  bank_accounts?: BankAccountInput[];
+  tags?: TagInput[];
+  transactions?: BulkTransactionInput[];
 }
 
 export interface BulkUploadResult {
   success: boolean;
-  inserted_count: number;
-  total_count: number;
+  error?: string;
+  categories_inserted?: number;
+  bank_accounts_inserted?: number;
+  tags_inserted?: number;
+  transactions_inserted?: number;
+  details?: {
+    categories?: BulkUploadError[];
+    bank_accounts?: BulkUploadError[];
+    tags?: BulkUploadError[];
+    transactions?: BulkUploadError[];
+  };
 }
 
 export interface BulkUploadError {
