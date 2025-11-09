@@ -16,11 +16,13 @@ export function BulkUploadCard() {
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<BulkUploadResult | null>(null);
   const [errors, setErrors] = useState<BulkUploadError[]>([]);
+  const [preview, setPreview] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setResult(null);
     setErrors([]);
     setFileError(null);
+    setPreview(null);
 
     const selected = e.target.files?.[0] ?? null;
     if (!selected) {
@@ -44,6 +46,20 @@ export function BulkUploadCard() {
     }
 
     setFile(selected);
+
+    // Parse file to generate preview
+    try {
+      const text = await selected.text();
+      const payload = parseUploadFile(text);
+      setPreview(getUploadSummary(payload));
+    } catch (parseErr) {
+      setFileError(
+        parseErr instanceof Error
+          ? parseErr.message
+          : "Failed to parse JSON file. Please ensure it is valid JSON."
+      );
+      setFile(null);
+    }
   };
 
   // Helper to clear the native file input element's value
@@ -175,9 +191,9 @@ export function BulkUploadCard() {
           </div>
         )}
 
-        {file && !fileError && (
+        {file && preview && !fileError && (
           <div className="text-sm text-blue-700 bg-blue-50 p-2 rounded">
-            Preview: Ready to upload
+            Preview: {preview}
           </div>
         )}
 
@@ -198,6 +214,7 @@ export function BulkUploadCard() {
               setFileError(null);
               setResult(null);
               setErrors([]);
+              setPreview(null);
               clearFileInput();
             }}
             className="px-3 py-2 border rounded text-sm"
