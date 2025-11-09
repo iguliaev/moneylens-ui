@@ -16,11 +16,13 @@ export function BulkUploadCard() {
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<BulkUploadResult | null>(null);
   const [errors, setErrors] = useState<BulkUploadError[]>([]);
+  const [previewPayload, setPreviewPayload] = useState<BulkUploadPayload | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setResult(null);
     setErrors([]);
     setFileError(null);
+    setPreviewPayload(null);
 
     const selected = e.target.files?.[0] ?? null;
     if (!selected) {
@@ -44,6 +46,20 @@ export function BulkUploadCard() {
     }
 
     setFile(selected);
+
+    // Parse file content for preview
+    try {
+      const text = await selected.text();
+      const payload = parseUploadFile(text);
+      setPreviewPayload(payload);
+    } catch (parseErr) {
+      setFileError(
+        parseErr instanceof Error
+          ? parseErr.message
+          : "Failed to parse JSON file. Please ensure it is valid JSON."
+      );
+      setFile(null);
+    }
   };
 
   // Helper to clear the native file input element's value
@@ -101,19 +117,24 @@ export function BulkUploadCard() {
 
     setIsUploading(true);
     try {
-      const text = await file.text();
+      // Use previewPayload if available, otherwise parse the file
       let payload: BulkUploadPayload;
-
-      try {
-        payload = parseUploadFile(text);
-      } catch (parseErr) {
-        setFileError(
-          parseErr instanceof Error
-            ? parseErr.message
-            : "Failed to parse JSON file. Please ensure it is valid JSON."
-        );
-        setIsUploading(false);
-        return;
+      
+      if (previewPayload) {
+        payload = previewPayload;
+      } else {
+        const text = await file.text();
+        try {
+          payload = parseUploadFile(text);
+        } catch (parseErr) {
+          setFileError(
+            parseErr instanceof Error
+              ? parseErr.message
+              : "Failed to parse JSON file. Please ensure it is valid JSON."
+          );
+          setIsUploading(false);
+          return;
+        }
       }
 
       // Validate that at least one section has data
@@ -133,6 +154,7 @@ export function BulkUploadCard() {
 
       setResult(res as BulkUploadResult);
       setFile(null);
+      setPreviewPayload(null);
       clearFileInput();
     } catch (err: unknown) {
       // Prefer the typed RpcError with structured details
@@ -175,9 +197,9 @@ export function BulkUploadCard() {
           </div>
         )}
 
-        {file && !fileError && (
+        {file && !fileError && previewPayload && (
           <div className="text-sm text-blue-700 bg-blue-50 p-2 rounded">
-            Preview: Ready to upload
+            Preview: {getUploadSummary(previewPayload)}
           </div>
         )}
 
@@ -198,6 +220,7 @@ export function BulkUploadCard() {
               setFileError(null);
               setResult(null);
               setErrors([]);
+              setPreviewPayload(null);
               clearFileInput();
             }}
             className="px-3 py-2 border rounded text-sm"
