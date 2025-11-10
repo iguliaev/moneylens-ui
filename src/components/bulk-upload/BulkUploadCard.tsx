@@ -153,7 +153,13 @@ export function BulkUploadCard() {
     } catch (err: unknown) {
       // Prefer the typed RpcError with structured details
       if (err instanceof RpcError) {
-        setErrors(err.details ?? []);
+        // If we have structured error details, show those
+        if (err.details && err.details.length > 0) {
+          setErrors(err.details);
+        } else {
+          // Otherwise show the main error message
+          setFileError(err.message);
+        }
       } else if (err instanceof Error) {
         setFileError(err.message);
       } else {
