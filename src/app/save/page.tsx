@@ -64,6 +64,7 @@ export default function SavePage() {
   const monthLabel = useMemo(() => new Date(month).toLocaleDateString(undefined, { month: "long", year: "numeric" }), [month]);
 
   const reload = useCallback(async () => {
+    console.log('🔄 reload called');
     const end = endOfMonthFromStart(month);
     const from = filters.from || month;
     const to = filters.to || end;
@@ -102,7 +103,9 @@ export default function SavePage() {
     setFilteredTotal(filteredSum as number | null);
   }, [month, filters, pageSize, page, bankAccounts]);
 
+  // Load initial data and reload transactions when dependencies change
   useEffect(() => {
+    console.log('📊 Main effect triggered - month:', month, 'page:', page);
     let mounted = true;
     (async () => {
       try {
@@ -129,7 +132,8 @@ export default function SavePage() {
     return () => {
       mounted = false;
     };
-  }, [month, page, pageSize, reload]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, page, pageSize]);
 
   useEffect(() => {
     setFilters((f) => ({ ...f, from: month, to: endOfMonthFromStart(month) }));
