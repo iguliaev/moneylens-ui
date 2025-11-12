@@ -169,6 +169,11 @@ export default function SpendPage() {
     setFilters((f) => ({ ...f, from: month, to: endOfMonthFromStart(month) }));
   }, [month]);
 
+  // Reset page to 1 when month or filters change
+  useEffect(() => {
+    setPage(1);
+  }, [month, filters]);
+
   // Since monthlyTotals is already filtered by month, just pick spend
   const totalSpend = (monthlyTotals.find((x) => x.type === "spend")?.total) ?? 0;
 

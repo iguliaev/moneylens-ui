@@ -160,6 +160,11 @@ export default function SavePage() {
     setFilters((f) => ({ ...f, from: month, to: endOfMonthFromStart(month) }));
   }, [month]);
 
+  // Reset page to 1 when month or filters change
+  useEffect(() => {
+    setPage(1);
+  }, [month, filters]);
+
   const totalSave = (monthlyTotals.find((x) => x.type === "save")?.total) ?? 0;
 
   const filtersApplied = useMemo(() => {
