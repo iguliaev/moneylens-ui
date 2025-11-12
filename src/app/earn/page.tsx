@@ -63,7 +63,9 @@ export default function EarnPage() {
 
   const monthLabel = useMemo(() => new Date(month).toLocaleDateString(undefined, { month: "long", year: "numeric" }), [month]);
 
-  const reload = useCallback(async () => {
+  // Extract reload logic as a plain function (not useCallback)
+  // This function will be recreated on every render with fresh closure values
+  const fetchTransactions = async () => {
     const end = endOfMonthFromStart(month);
     const from = filters.from || month;
     const to = filters.to || end;
@@ -81,13 +83,13 @@ export default function EarnPage() {
         categoryId: filters.categoryId || undefined,
         bankAccountId: filters.bankAccountId || undefined,
         tagsAny: filters.tag ? [filters.tag] : undefined,
-  orderBy: "date",
+        orderBy: "date",
         orderDir: "desc",
         limit: pageSize,
         offset: (page - 1) * pageSize,
       }),
       isApplied
-    ? DataApi.sumTransactionsAmount({
+        ? DataApi.sumTransactionsAmount({
             type: "earn",
             from,
             to,
@@ -100,8 +102,10 @@ export default function EarnPage() {
     setMonthlyTotals(totalsRes);
     setRows(rowsRes);
     setFilteredTotal(filteredSum as number | null);
-  }, [month, filters, pageSize, page, bankAccounts]);
+  };
 
+  // Load initial reference data (categories, bank accounts, tags) on mount
+  // This only runs once when the component mounts
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -117,10 +121,9 @@ export default function EarnPage() {
         setCategories(cats);
         setBankAccounts(bas);
         setAllTags(tags);
-        await reload();
       } catch (e: any) {
         if (!mounted) return;
-        setError(e?.message ?? "Failed to load earnings");
+        setError(e?.message ?? "Failed to load reference data");
       } finally {
         if (!mounted) return;
         setLoading(false);
@@ -129,7 +132,29 @@ export default function EarnPage() {
     return () => {
       mounted = false;
     };
-  }, [month, page, pageSize, reload]);
+  }, []); // Only run once on mount
+
+  // Fetch transactions whenever dependencies change
+  // This runs when month, page, filters, or bankAccounts change
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        await fetchTransactions();
+      } catch (e: any) {
+        if (!mounted) return;
+        setError(e?.message ?? "Failed to load transactions");
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, page, filters, bankAccounts]);
 
   useEffect(() => {
     setFilters((f) => ({ ...f, from: month, to: endOfMonthFromStart(month) }));
@@ -160,7 +185,7 @@ export default function EarnPage() {
         notes: form.notes || null,
       });
       setForm((f) => ({ ...f, amount: "", notes: "" }));
-      await reload();
+      await fetchTransactions();
     } catch (e: any) {
       setError(e?.message ?? "Failed to create earning");
     } finally {
@@ -195,7 +220,7 @@ export default function EarnPage() {
       await DataApi.updateTransaction(editingId, changes);
       setEditingId(null);
       setEditDraft({});
-      await reload();
+      await fetchTransactions();
     } catch (e: any) {
       setError(e?.message ?? "Failed to update earning");
     } finally {
@@ -208,7 +233,7 @@ export default function EarnPage() {
       setSaving(true);
       await DataApi.deleteTransaction(id);
       setSelected((s) => { const c = { ...s }; delete c[id]; return c; });
-      await reload();
+      await fetchTransactions();
     } catch (e: any) {
       setError(e?.message ?? "Failed to delete");
     } finally {
@@ -223,7 +248,7 @@ export default function EarnPage() {
       setSaving(true);
       await DataApi.deleteTransactions(ids);
       setSelected({});
-      await reload();
+      await fetchTransactions();
     } catch (e: any) {
       setError(e?.message ?? "Failed to delete selected");
     } finally {
@@ -312,8 +337,8 @@ export default function EarnPage() {
           </div>
         </div>
         <div className="mt-3 flex gap-2">
-          <button className="px-3 py-1 rounded border" onClick={() => { setPage(1); reload(); }}>Apply</button>
-          <button className="px-3 py-1 rounded border" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); reload(); }}>Reset</button>
+          <button className="px-3 py-1 rounded border" onClick={() => { setPage(1); fetchTransactions(); }}>Apply</button>
+          <button className="px-3 py-1 rounded border" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }}>Reset</button>
         </div>
       </section>
 

@@ -359,7 +359,28 @@ export const DataApi = {
     return (data as unknown as number) ?? 0;
   },
 
-  // Bulk upload RPC
+  // Bulk upload RPC - Extended version with entity support
+  async bulkUploadData(payload: BulkUploadPayload): Promise<BulkUploadResult> {
+    const { data, error } = await db.rpc("bulk_upload_data", {
+      p_payload: payload as any, // JSONB type
+    });
+    if (error) {
+      // Try to parse structured error details returned in error.details
+      let details: BulkUploadError[] = [];
+      try {
+        if (error.details) {
+          details = JSON.parse(error.details);
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+      // Throw a typed RpcError so callers can inspect structured details
+      throw new RpcError(error.message ?? "RPC error", details, error);
+    }
+    return data as BulkUploadResult;
+  },
+
+  // Legacy bulk upload RPC - Kept for backward compatibility
   async bulkUploadTransactions(payload: BulkUploadPayload): Promise<BulkUploadResult> {
     const { data, error } = await db.rpc("bulk_insert_transactions", {
       p_transactions: payload.transactions,
@@ -374,8 +395,8 @@ export const DataApi = {
       } catch (e) {
         // ignore parse errors
       }
-  // Throw a typed RpcError so callers can inspect structured details
-  throw new RpcError(error.message ?? "RPC error", details, error);
+      // Throw a typed RpcError so callers can inspect structured details
+      throw new RpcError(error.message ?? "RPC error", details, error);
     }
     return data as BulkUploadResult;
   },
