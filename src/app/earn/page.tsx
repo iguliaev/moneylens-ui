@@ -64,7 +64,6 @@ export default function EarnPage() {
   const monthLabel = useMemo(() => new Date(month).toLocaleDateString(undefined, { month: "long", year: "numeric" }), [month]);
 
   const reload = useCallback(async () => {
-    console.log('🔄 reload called');
     const end = endOfMonthFromStart(month);
     const from = filters.from || month;
     const to = filters.to || end;
@@ -105,7 +104,6 @@ export default function EarnPage() {
 
   // Load initial data and reload transactions when dependencies change
   useEffect(() => {
-    console.log('📊 Main effect triggered - month:', month, 'page:', page);
     let mounted = true;
     (async () => {
       try {
