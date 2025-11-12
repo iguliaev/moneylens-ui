@@ -257,6 +257,9 @@ export default function EarnPage() {
   }
 
   const allOnPageSelected = rows.length > 0 && rows.every((r) => selected[r.id]);
+  
+  // Calculate if there are more pages (if we got fewer rows than pageSize, we're on the last page)
+  const hasNextPage = rows.length >= pageSize;
   function toggleSelectAllPage() {
     const next: Record<string, boolean> = { ...selected };
     if (allOnPageSelected) {
@@ -396,11 +399,19 @@ export default function EarnPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Transactions</h2>
             <div className="flex items-center gap-2">
-              <button className="px-3 py-1 rounded border" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+              <button 
+                className="px-3 py-1 rounded border disabled:opacity-50" 
+                disabled={page <= 1 || rows.length === 0} 
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
                 Prev
               </button>
               <span className="text-sm">Page {page}</span>
-              <button className="px-3 py-1 rounded border" onClick={() => setPage((p) => p + 1)}>
+              <button 
+                className="px-3 py-1 rounded border disabled:opacity-50" 
+                disabled={!hasNextPage || rows.length === 0}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 Next
               </button>
               <button className="px-3 py-1 rounded border" disabled={!Object.values(selected).some(Boolean) || saving} onClick={deleteSelected}>
