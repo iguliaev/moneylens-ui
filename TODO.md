@@ -1,0 +1,8 @@
+# TODO
+
+## Miscellaneous
+
+- [ ] Change ordering of results returned after applying filters on `earn`, `spend`, and `save` pages to be date descending.
+- [ ] Enhance navigation between pages on `earn`, `spend`, and `save` pages. Currently, there are `Prev` and `Next` buttons and page number indicator. When there are no results on the current page, `Prev` and `Next` buttons should be disabled. The `Next` button should be disabled when there are no more results to show on the next page.
+- [ ] Save selected month and filters while navigating between `earn`, `spend`, and `save` pages. Currently, the month and filters reset when navigating between these pages.
+- [ ] Currently, buttons on `earn`, `spend`, and `save` pages contain text only. Consider replacing them with icons for a cleaner UI.
