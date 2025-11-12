@@ -160,6 +160,11 @@ export default function EarnPage() {
     setFilters((f) => ({ ...f, from: month, to: endOfMonthFromStart(month) }));
   }, [month]);
 
+  // Reset page to 1 when month or filters change
+  useEffect(() => {
+    setPage(1);
+  }, [month, filters]);
+
   const totalEarn = (monthlyTotals.find((x) => x.type === "earn")?.total) ?? 0;
 
   const filtersApplied = useMemo(() => {
