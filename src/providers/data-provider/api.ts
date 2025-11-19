@@ -16,6 +16,7 @@ import type {
   BulkUploadPayload,
   BulkUploadResult,
   BulkUploadError,
+  DataResetResult,
 } from "./types";
 
 // Typed RPC error wrapper so callers can inspect structured details
@@ -399,6 +400,15 @@ export const DataApi = {
       throw new RpcError(error.message ?? "RPC error", details, error);
     }
     return data as BulkUploadResult;
+  },
+
+  // Phase 3: Data Reset - Permanently delete all user data
+  async resetUserData(): Promise<DataResetResult> {
+    const { data, error } = await db.rpc("reset_user_data");
+    if (error) {
+      throw new Error(error.message ?? "Failed to reset user data");
+    }
+    return data as DataResetResult;
   },
 
   // Views: totals by month/type
