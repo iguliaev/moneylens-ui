@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BulkUploadCard } from "@/components/bulk-upload/BulkUploadCard";
 import { DataResetModal } from "@/components/data-reset/DataResetModal";
@@ -8,6 +9,7 @@ import { DataApi } from "@/providers/data-provider/api";
 import type { DataResetResult } from "@/providers/data-provider/types";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [resetResult, setResetResult] = useState<DataResetResult | null>(null);
@@ -23,10 +25,12 @@ export default function SettingsPage() {
 
       // Redirect to dashboard after short delay
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
       }, 2500);
-    } catch (err: any) {
-      setError(err?.message || "Failed to reset data");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to reset data"
+      );
       setIsDeleting(false);
     }
   };

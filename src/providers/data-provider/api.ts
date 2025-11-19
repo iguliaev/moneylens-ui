@@ -406,7 +406,7 @@ export const DataApi = {
   async resetUserData(): Promise<DataResetResult> {
     const { data, error } = await db.rpc("reset_user_data");
     if (error) {
-      throw new RpcError(error.message ?? "Failed to reset user data", [], error);
+      throw new Error(error.message ?? "Failed to reset user data");
     }
     return data as DataResetResult;
   },
