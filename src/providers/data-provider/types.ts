@@ -178,3 +178,12 @@ export interface BulkUploadError {
   index: number; // 1-based index matching input order
   error: string;
 }
+
+// Phase 3: Data Reset Feature
+export interface DataResetResult {
+  success: boolean;
+  transactions_deleted: number;
+  categories_deleted: number;
+  tags_deleted: number;
+  bank_accounts_deleted: number;
+}
