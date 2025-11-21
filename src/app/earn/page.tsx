@@ -523,19 +523,19 @@ export default function EarnPage() {
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes">
+                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes" aria-label="Save changes">
                             <Save size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing">
+                          <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
                             <X size={18} />
                           </button>
                         </div>
                       ) : (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction">
+                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction" aria-label="Edit transaction">
                             <Edit size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction">
+                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction" aria-label="Delete transaction">
                             <Trash2 size={18} />
                           </button>
                         </div>

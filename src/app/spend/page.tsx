@@ -410,7 +410,11 @@ export default function SpendPage() {
             <input type="text" className="border rounded px-2 py-1 w-full" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </div>
           <div className="md:col-span-6 flex justify-end">
+<<<<<<< HEAD
             <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new spending transaction">
+=======
+            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-blue-50 disabled:opacity-50" disabled={saving} aria-label="Add new spending transaction">
+>>>>>>> af18668 (Address review comments)
               <Plus size={18} />
               <span>{saving ? "Saving…" : "Add Spending"}</span>
             </button>
@@ -526,19 +530,19 @@ export default function SpendPage() {
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes">
+                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes" aria-label="Save changes">
                             <Save size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing">
+                          <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
                             <X size={18} />
                           </button>
                         </div>
                       ) : (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction">
+                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction" aria-label="Edit transaction">
                             <Edit size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction">
+                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction" aria-label="Delete transaction">
                             <Trash2 size={18} />
                           </button>
                         </div>
