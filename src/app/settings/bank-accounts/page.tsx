@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DataApi } from "@providers/data-provider/api";
 import type { BankAccount } from "@providers/data-provider/types";
+import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 
 export default function BankAccountsSettingsPage() {
   const [items, setItems] = useState<BankAccount[]>([]);
@@ -107,8 +108,9 @@ export default function BankAccountsSettingsPage() {
             placeholder="Notes..."
           />
         </div>
-        <button className="px-3 py-2 border rounded" disabled={loading}>
-          Add
+        <button className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={loading}>
+          <Plus size={18} />
+          <span>Add</span>
         </button>
       </form>
 
@@ -163,19 +165,25 @@ export default function BankAccountsSettingsPage() {
                   <td className="p-2 flex gap-2">
                     {isEditing ? (
                       <>
-                        <button className="px-2 py-1 border rounded" onClick={() => void saveEdit(row.id)}>Update</button>
-                        <button className="px-2 py-1 border rounded" onClick={cancelEdit}>Cancel</button>
+                        <button className="px-2 py-1 border rounded hover:bg-green-50 disabled:opacity-50" onClick={() => void saveEdit(row.id)} title="Save changes">
+                          <Save size={18} />
+                        </button>
+                        <button className="px-2 py-1 border rounded hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing">
+                          <X size={18} />
+                        </button>
                       </>
                     ) : (
                       <>
-                        <button className="px-2 py-1 border rounded" onClick={() => startEdit(row)}>Edit</button>
+                        <button className="px-2 py-1 border rounded hover:bg-blue-50" onClick={() => startEdit(row)} title="Edit bank account">
+                          <Edit size={18} />
+                        </button>
                         <button
-                          className="px-2 py-1 border rounded disabled:opacity-50"
+                          className="px-2 py-1 border rounded hover:bg-red-50 disabled:opacity-50"
                           disabled={(row.in_use_count ?? 0) > 0}
-                          title={(row.in_use_count ?? 0) > 0 ? `Cannot delete — used by ${row.in_use_count} transaction(s)` : "Delete"}
+                          title={(row.in_use_count ?? 0) > 0 ? `Cannot delete — used by ${row.in_use_count} transaction(s)` : "Delete bank account"}
                           onClick={() => onDelete(row.id)}
                         >
-                          Delete
+                          <Trash2 size={18} />
                         </button>
                       </>
                     )}
