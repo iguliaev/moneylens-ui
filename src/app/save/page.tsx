@@ -403,7 +403,7 @@ export default function SavePage() {
             <input type="text" className="border rounded px-2 py-1 w-full" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </div>
           <div className="md:col-span-6 flex justify-end">
-            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-blue-50 disabled:opacity-50" disabled={saving} aria-label="Add new saving transaction">
+            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new saving transaction">
               <Plus size={18} />
               <span>{saving ? "Saving…" : "Add Saving"}</span>
             </button>
