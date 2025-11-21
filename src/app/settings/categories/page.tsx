@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DataApi } from "@providers/data-provider/api";
 import type { Category, TransactionType } from "@providers/data-provider/types";
+import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 
 const TYPES: TransactionType[] = ["spend", "earn", "save"];
 
@@ -153,7 +154,10 @@ export default function CategoriesSettingsPage() {
             placeholder="Notes..."
           />
         </div>
-        <button className="px-3 py-2 border rounded" disabled={loading}>Add</button>
+        <button className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={loading}>
+          <Plus size={18} />
+          <span>Add</span>
+        </button>
       </form>
 
       <div className="border rounded overflow-hidden">
@@ -207,19 +211,26 @@ export default function CategoriesSettingsPage() {
                   <td className="p-2 flex gap-2">
                     {isEditing ? (
                       <>
-                        <button className="px-2 py-1 border rounded" onClick={() => void saveEdit(c.id)}>Update</button>
-                        <button className="px-2 py-1 border rounded" onClick={cancelEdit}>Cancel</button>
+                        <button className="px-2 py-1 border rounded hover:bg-green-50 disabled:opacity-50" onClick={() => void saveEdit(c.id)} title="Save changes" aria-label="Save changes">
+                          <Save size={18} />
+                        </button>
+                        <button className="px-2 py-1 border rounded hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
+                          <X size={18} />
+                        </button>
                       </>
                     ) : (
                       <>
-                        <button className="px-2 py-1 border rounded" onClick={() => startEdit(c)}>Edit</button>
+                        <button className="px-2 py-1 border rounded hover:bg-blue-50" onClick={() => startEdit(c)} title="Edit category" aria-label="Edit category">
+                          <Edit size={18} />
+                        </button>
                         <button
-                          className="px-2 py-1 border rounded disabled:opacity-50"
+                          className="px-2 py-1 border rounded hover:bg-red-50 disabled:opacity-50"
                           disabled={(c.in_use_count ?? 0) > 0}
-                          title={(c.in_use_count ?? 0) > 0 ? `Cannot delete — used by ${(c.in_use_count ?? 0)} transaction(s)` : "Delete"}
+                          title={(c.in_use_count ?? 0) > 0 ? `Cannot delete — used by ${(c.in_use_count ?? 0)} transaction(s)` : "Delete category"}
                           onClick={() => onDelete(c.id)}
+                          aria-label="Delete category"
                         >
-                          Delete
+                          <Trash2 size={18} />
                         </button>
                       </>
                     )}

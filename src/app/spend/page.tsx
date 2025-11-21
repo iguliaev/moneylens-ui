@@ -4,6 +4,7 @@ import { DataApi } from "@providers/data-provider/api";
 import type { MonthlyTotalsRow, Transaction, Category, BankAccount, Tag } from "@providers/data-provider/types";
 import TagsMultiSelect from "@components/tags/multi-select";
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { Check, RotateCcw, Plus, ChevronLeft, ChevronRight, Trash2, Edit, Save, X } from "lucide-react";
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "GBP" }).format(n);
@@ -356,8 +357,14 @@ export default function SpendPage() {
           </div>
         </div>
         <div className="mt-3 flex gap-2">
-          <button className="px-3 py-1 rounded border" onClick={() => { setPage(1); fetchTransactions(); }}>Apply</button>
-          <button className="px-3 py-1 rounded border" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }}>Reset</button>
+          <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setPage(1); fetchTransactions(); }} aria-label="Apply filters">
+            <Check size={18} />
+            <span>Apply</span>
+          </button>
+          <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }} aria-label="Reset filters">
+            <RotateCcw size={18} />
+            <span>Reset</span>
+          </button>
         </div>
       </section>
 
@@ -403,7 +410,10 @@ export default function SpendPage() {
             <input type="text" className="border rounded px-2 py-1 w-full" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </div>
           <div className="md:col-span-6 flex justify-end">
-            <button className="px-3 py-1 rounded border" disabled={saving}>{saving ? "Saving…" : "Add Spending"}</button>
+            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new spending transaction">
+              <Plus size={18} />
+              <span>{saving ? "Saving…" : "Add Spending"}</span>
+            </button>
           </div>
         </form>
 
@@ -412,22 +422,25 @@ export default function SpendPage() {
             <h2 className="text-lg font-medium">Transactions</h2>
             <div className="flex items-center gap-2">
               <button 
-                className="px-3 py-1 rounded border disabled:opacity-50" 
-                disabled={page <= 1 || rows.length === 0} 
+                className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1" 
+                disabled={page <= 1 || rows.length === 0}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
+                aria-label="Previous page"
               >
-                Prev
+                <ChevronLeft size={18} />
               </button>
-              <span className="text-sm">Page {page}</span>
+              <span className="text-sm px-2">Page {page}</span>
               <button 
-                className="px-3 py-1 rounded border disabled:opacity-50" 
+                className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1" 
                 disabled={!hasNextPage || rows.length === 0}
                 onClick={() => setPage((p) => p + 1)}
+                aria-label="Next page"
               >
-                Next
+                <ChevronRight size={18} />
               </button>
-              <button className="px-3 py-1 rounded border" disabled={!Object.values(selected).some(Boolean) || saving} onClick={deleteSelected}>
-                Delete Selected
+              <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50" disabled={!Object.values(selected).some(Boolean) || saving} onClick={deleteSelected} aria-label="Delete selected transactions">
+                <Trash2 size={18} />
+                <span>Delete Selected</span>
               </button>
             </div>
           </div>
@@ -513,13 +526,21 @@ export default function SpendPage() {
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-3 py-1 rounded border" disabled={saving} onClick={saveEdit}>Save</button>
-                          <button className="px-3 py-1 rounded border" onClick={cancelEdit}>Cancel</button>
+                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes" aria-label="Save changes">
+                            <Save size={18} />
+                          </button>
+                          <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
+                            <X size={18} />
+                          </button>
                         </div>
                       ) : (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-3 py-1 rounded border" onClick={() => startEdit(t)}>Edit</button>
-                          <button className="px-3 py-1 rounded border" disabled={saving} onClick={() => deleteOne(t.id)}>Delete</button>
+                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction" aria-label="Edit transaction">
+                            <Edit size={18} />
+                          </button>
+                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction" aria-label="Delete transaction">
+                            <Trash2 size={18} />
+                          </button>
                         </div>
                       )}
                     </td>
