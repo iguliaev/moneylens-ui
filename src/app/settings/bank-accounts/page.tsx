@@ -165,16 +165,16 @@ export default function BankAccountsSettingsPage() {
                   <td className="p-2 flex gap-2">
                     {isEditing ? (
                       <>
-                        <button className="px-2 py-1 border rounded hover:bg-green-50 disabled:opacity-50" onClick={() => void saveEdit(row.id)} title="Save changes">
+                        <button className="px-2 py-1 border rounded hover:bg-green-50 disabled:opacity-50" onClick={() => void saveEdit(row.id)} title="Save changes" aria-label="Save changes">
                           <Save size={18} />
                         </button>
-                        <button className="px-2 py-1 border rounded hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing">
+                        <button className="px-2 py-1 border rounded hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
                           <X size={18} />
                         </button>
                       </>
                     ) : (
                       <>
-                        <button className="px-2 py-1 border rounded hover:bg-blue-50" onClick={() => startEdit(row)} title="Edit bank account">
+                        <button className="px-2 py-1 border rounded hover:bg-blue-50" onClick={() => startEdit(row)} title="Edit bank account" aria-label="Edit bank account">
                           <Edit size={18} />
                         </button>
                         <button
@@ -182,6 +182,7 @@ export default function BankAccountsSettingsPage() {
                           disabled={(row.in_use_count ?? 0) > 0}
                           title={(row.in_use_count ?? 0) > 0 ? `Cannot delete — used by ${row.in_use_count} transaction(s)` : "Delete bank account"}
                           onClick={() => onDelete(row.id)}
+                          aria-label="Delete bank account"
                         >
                           <Trash2 size={18} />
                         </button>
