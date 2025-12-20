@@ -24,7 +24,7 @@ export interface Transaction {
    */
   bank_account_id?: string | null;
   amount: number;
-  tags: string[] | null;
+  tags: Tag[] | null;
   notes: string | null;
   bank_account: string | null;
   created_at: string;

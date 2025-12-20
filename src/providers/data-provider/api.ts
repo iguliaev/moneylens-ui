@@ -172,7 +172,8 @@ export const DataApi = {
     source: TransactionSource,
     params: ListTransactionsParams = {}
   ): Promise<Transaction[]> {
-    let q = db.from(source).select("*");
+    // Select nested tag objects via transaction_tags -> tags
+    let q = db.from(source).select("*, transaction_tags(tag:tags(id, name, description))");
 
     if (params.from) q = q.gte("date", params.from);
     if (params.to) q = q.lte("date", params.to);
@@ -195,7 +196,16 @@ export const DataApi = {
 
     const { data, error } = await q;
     if (error) throw error;
-    return data as Transaction[];
+
+    // Transform nested transaction_tags into Tag[] on each transaction
+    const transformed = (data as any[]).map((t) => {
+      const tags = (t.transaction_tags || []).map((tt: any) => tt.tag).filter(Boolean);
+      return {
+        ...t,
+        tags,
+      } as Transaction;
+    });
+    return transformed as Transaction[];
   },
 
   /**
@@ -241,13 +251,29 @@ export const DataApi = {
       bank_account: input.bank_account ?? null,
     };
 
-    const { data, error } = await db
-      .from("transactions")
-      .insert(payload)
-      .select("*")
-      .single();
+    const { data, error } = await db.from("transactions").insert(payload).select("*").single();
     if (error) throw error;
-    return data as Transaction;
+    const tx = data as Transaction;
+
+    // Create transaction_tags associations if provided
+    if (input.tags && input.tags.length) {
+      // Determine if tags are objects with id or plain strings
+      const first = input.tags[0] as any;
+      if (typeof first === "object" && first.id) {
+        const associations = (input.tags as any[]).map((tg: any) => ({ transaction_id: tx.id, tag_id: tg.id }));
+        await db.from("transaction_tags").insert(associations).select();
+      } else {
+        // strings - map names to ids for this user
+        const names = (input.tags as string[]).filter(Boolean);
+        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+        if (tagRows && tagRows.length) {
+          const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
+          await db.from("transaction_tags").insert(associations).select();
+        }
+      }
+    }
+
+    return tx as Transaction;
   },
 
   async createEarn(input: {
@@ -278,13 +304,26 @@ export const DataApi = {
       bank_account: input.bank_account ?? null,
     };
 
-    const { data, error } = await db
-      .from("transactions")
-      .insert(payload)
-      .select("*")
-      .single();
+    const { data, error } = await db.from("transactions").insert(payload).select("*").single();
     if (error) throw error;
-    return data as Transaction;
+    const tx = data as Transaction;
+
+    if (input.tags && input.tags.length) {
+      const first = input.tags[0] as any;
+      if (typeof first === "object" && first.id) {
+        const associations = (input.tags as any[]).map((tg: any) => ({ transaction_id: tx.id, tag_id: tg.id }));
+        await db.from("transaction_tags").insert(associations).select();
+      } else {
+        const names = (input.tags as string[]).filter(Boolean);
+        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+        if (tagRows && tagRows.length) {
+          const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
+          await db.from("transaction_tags").insert(associations).select();
+        }
+      }
+    }
+
+    return tx as Transaction;
   },
 
   async createSave(input: {
@@ -315,16 +354,36 @@ export const DataApi = {
       bank_account: input.bank_account ?? null,
     };
 
-    const { data, error } = await db
-      .from("transactions")
-      .insert(payload)
-      .select("*")
-      .single();
+    const { data, error } = await db.from("transactions").insert(payload).select("*").single();
     if (error) throw error;
-    return data as Transaction;
+    const tx = data as Transaction;
+
+    if (input.tags && input.tags.length) {
+      const first = input.tags[0] as any;
+      if (typeof first === "object" && first.id) {
+        const associations = (input.tags as any[]).map((tg: any) => ({ transaction_id: tx.id, tag_id: tg.id }));
+        await db.from("transaction_tags").insert(associations).select();
+      } else {
+        const names = (input.tags as string[]).filter(Boolean);
+        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+        if (tagRows && tagRows.length) {
+          const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
+          await db.from("transaction_tags").insert(associations).select();
+        }
+      }
+    }
+
+    return tx as Transaction;
   },
 
   async updateTransaction(id: string, changes: Partial<Pick<Transaction, "date" | "category" | "category_id" | "bank_account_id" | "amount" | "tags" | "notes" | "bank_account" | "type">>): Promise<Transaction> {
+    // Handle tags separately if provided
+    const tagsInput = (changes as any).tags ?? undefined;
+    if (tagsInput !== undefined) {
+      // Remove tags from changes before updating transaction row
+      delete (changes as any).tags;
+    }
+
     const { data, error } = await db
       .from("transactions")
       .update(changes)
@@ -332,7 +391,36 @@ export const DataApi = {
       .select("*")
       .single();
     if (error) throw error;
-    return data as Transaction;
+    const tx = data as Transaction;
+
+    if (tagsInput !== undefined) {
+      // Delete existing associations
+      await db.from("transaction_tags").delete().eq("transaction_id", id);
+
+      if (Array.isArray(tagsInput) && tagsInput.length > 0) {
+        const first = tagsInput[0] as any;
+        if (typeof first === "object" && first.id) {
+          const associations = (tagsInput as any[]).map((tg: any) => ({ transaction_id: id, tag_id: tg.id }));
+          await db.from("transaction_tags").insert(associations).select();
+        } else {
+          const names = (tagsInput as string[]).filter(Boolean);
+          const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+          if (tagRows && tagRows.length) {
+            const associations = tagRows.map((r: any) => ({ transaction_id: id, tag_id: r.id }));
+            await db.from("transaction_tags").insert(associations).select();
+          }
+        }
+      }
+    }
+
+    // Refresh transaction row to include updated relations
+    const { data: refreshed, error: refErr } = await db
+      .from("transactions")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (refErr) throw refErr;
+    return refreshed as Transaction;
   },
 
   async deleteTransaction(id: string): Promise<void> {

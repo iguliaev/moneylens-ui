@@ -214,8 +214,12 @@ export default function SpendPage() {
 
   // Handlers: edit row
   function startEdit(row: Transaction) {
+    // Normalize tags into string[] (tag names) for the edit form
+    const normalizedTags = Array.isArray((row as any).tags)
+      ? (row as any).tags.map((tg: any) => (typeof tg === 'string' ? tg : tg?.name)).filter(Boolean)
+      : [];
     setEditingId(row.id);
-  setEditDraft({ ...row });
+    setEditDraft({ ...row, tags: normalizedTags });
   }
   function cancelEdit() {
     setEditingId(null);
@@ -509,11 +513,13 @@ export default function SpendPage() {
                       {editingId === t.id ? (
                           <TagsMultiSelect
                             options={allTags.map((tg) => tg.name)}
-                            value={Array.isArray(editDraft.tags) ? (editDraft.tags as string[]) : (t.tags ?? [])}
+                            value={Array.isArray(editDraft.tags)
+                              ? (editDraft.tags as string[])
+                              : (t.tags && Array.isArray(t.tags) ? (t.tags as any[]).map((tg) => (typeof tg === 'string' ? tg : tg?.name)) : [])}
                             onChange={(vals) => setEditDraft({ ...editDraft, tags: vals })}
                           />
                         ) : (
-                        t.tags?.join(', ') || "—"
+                        (t.tags && Array.isArray(t.tags) ? (t.tags as any[]).map((tg) => (typeof tg === 'string' ? tg : tg?.name)).join(', ') : "—")
                       )}
                     </td>
                     <td className="py-2">
