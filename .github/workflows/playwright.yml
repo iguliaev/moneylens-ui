@@ -27,17 +27,10 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
 
-    - name: Wait for Vercel Preview Deployment
-      uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
-      id: wait-for-deployment
-      with:
-        token: ${{ secrets.WAIT_FOR_VERCEL_PREVIEW_GITHUB_TOKEN }}
-        vercel_protection_bypass_header: ${{ secrets.VERCEL_PROTECTION_BYPASS_HEADER }}
-
     - name: Run E2E tests against preview
-      run: pm run test:e2e
+      run: npm run test:e2e
       env:      
-        BASE_URL: ${{ steps.wait-for-deployment.outputs.url }}
+        BASE_URL: ${{ env.BASE_URL }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
