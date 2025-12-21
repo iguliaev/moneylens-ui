@@ -32,7 +32,7 @@ jobs:
       id: wait-for-deployment
       with:
         token: ${{ secrets.WAIT_FOR_VERCEL_PREVIEW_GITHUB_TOKEN }}
-        max_timeout: 300
+        vercel_protection_bypass_header: ${{ secrets.VERCEL_PROTECTION_BYPASS_HEADER }}
 
     - name: Run E2E tests against preview
       run: pm run test:e2e
