@@ -30,7 +30,7 @@ jobs:
     - name: Run E2E tests against preview
       run: npm run test:e2e
       env:      
-        BASE_URL: ${{ env.BASE_URL }}
+        BASE_URL: ${{ vars.BASE_URL }}
         NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
