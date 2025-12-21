@@ -46,7 +46,6 @@ test.describe('Authentication', () => {
       await page.click('input[type="submit"]');
       await page.waitForURL('/dashboard');
       
-      // Logout — adjust selectors if your app differs
       await page.getByRole('button', { name: 'Logout' }).click();
       
       await expect(page).toHaveURL('/login', { timeout: 5000 });
