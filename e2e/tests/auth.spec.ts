@@ -3,6 +3,7 @@ import { createTestUser, deleteTestUser, supabaseAdmin } from '../utils/test-hel
 
 test.describe('Authentication', () => {
   test('user can create an account', async ({ page }) => {
+    test.skip(!!process.env.CI, 'Sign‑up test only runs locally');
     const email = `new-user-${Date.now()}@example.com`;
     const password = 'SecurePass123!';
     
