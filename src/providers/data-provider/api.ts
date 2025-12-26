@@ -43,13 +43,24 @@ type TransactionSource =
 const order = <T>(query: any, column: string, ascending: boolean) =>
   query.order(column, { ascending });
 
+async function requireUserId(): Promise<string> {
+  const { data: authData, error: authError } = await db.auth.getUser();
+  if (authError) throw authError;
+  const userId = authData.user?.id;
+  if (!userId) throw new Error("Not authenticated");
+  return userId;
+}
+
 export const DataApi = {
   // Tables
   async listCategories(type?: TransactionType): Promise<Category[]> {
+    const userId = await requireUserId();
+
     // Read from categories_with_usage to get in_use_count
     let q = db
       .from("categories_with_usage")
       .select("id,user_id,type,name,description,created_at,updated_at,in_use_count")
+      .eq("user_id", userId)
       .order("name", { ascending: true });
     if (type) q = q.eq("type", type);
     const { data, error } = await q;
@@ -59,9 +70,12 @@ export const DataApi = {
 
   // Bank Accounts CRUD
   async listBankAccounts(): Promise<BankAccount[]> {
+    const userId = await requireUserId();
+
     const { data, error } = await db
       .from("bank_accounts_with_usage")
       .select("id,user_id,name,description,created_at,updated_at,in_use_count")
+      .eq("user_id", userId)
       .order("name", { ascending: true });
     if (error) throw error;
     return (data as any[]) as BankAccount[];
@@ -107,9 +121,12 @@ export const DataApi = {
 
   // Tags CRUD
   async listTags(): Promise<Tag[]> {
+    const userId = await requireUserId();
+
     const { data, error } = await db
       .from("tags_with_usage")
       .select("id,user_id,name,description,created_at,updated_at,in_use_count")
+      .eq("user_id", userId)
       .order("name", { ascending: true });
     if (error) throw error;
     return (data as any[]) as Tag[];
@@ -172,8 +189,13 @@ export const DataApi = {
     source: TransactionSource,
     params: ListTransactionsParams = {}
   ): Promise<Transaction[]> {
+    const userId = await requireUserId();
+
     // Select nested tag objects via transaction_tags -> tags
-    let q = db.from(source).select("*, transaction_tags(tag:tags(id, name, description))");
+    let q = db
+      .from(source)
+      .select("*, transaction_tags(tag:tags(id, name, description))")
+      .eq("user_id", userId);
 
     if (params.from) q = q.gte("date", params.from);
     if (params.to) q = q.lte("date", params.to);
@@ -233,10 +255,7 @@ export const DataApi = {
     notes?: string | null;
     bank_account?: string | null;
   }): Promise<Transaction> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
 
     const payload = {
       user_id: userId,
@@ -265,7 +284,7 @@ export const DataApi = {
       } else {
         // strings - map names to ids for this user
         const names = (input.tags as string[]).filter(Boolean);
-        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
         if (tagRows && tagRows.length) {
           const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
           await db.from("transaction_tags").insert(associations).select();
@@ -286,10 +305,7 @@ export const DataApi = {
     notes?: string | null;
     bank_account?: string | null;
   }): Promise<Transaction> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
 
     const payload = {
       user_id: userId,
@@ -315,7 +331,7 @@ export const DataApi = {
         await db.from("transaction_tags").insert(associations).select();
       } else {
         const names = (input.tags as string[]).filter(Boolean);
-        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
         if (tagRows && tagRows.length) {
           const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
           await db.from("transaction_tags").insert(associations).select();
@@ -336,10 +352,7 @@ export const DataApi = {
     notes?: string | null;
     bank_account?: string | null;
   }): Promise<Transaction> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
 
     const payload = {
       user_id: userId,
@@ -365,7 +378,7 @@ export const DataApi = {
         await db.from("transaction_tags").insert(associations).select();
       } else {
         const names = (input.tags as string[]).filter(Boolean);
-        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
         if (tagRows && tagRows.length) {
           const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
           await db.from("transaction_tags").insert(associations).select();
@@ -377,6 +390,7 @@ export const DataApi = {
   },
 
   async updateTransaction(id: string, changes: Partial<Pick<Transaction, "date" | "category" | "category_id" | "bank_account_id" | "amount" | "tags" | "notes" | "bank_account" | "type">>): Promise<Transaction> {
+    const userId = await requireUserId();
     // Handle tags separately if provided
     const tagsInput = (changes as any).tags ?? undefined;
     if (tagsInput !== undefined) {
@@ -404,7 +418,7 @@ export const DataApi = {
           await db.from("transaction_tags").insert(associations).select();
         } else {
           const names = (tagsInput as string[]).filter(Boolean);
-          const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", (await db.auth.getUser()).data?.user?.id);
+          const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
           if (tagRows && tagRows.length) {
             const associations = tagRows.map((r: any) => ({ transaction_id: id, tag_id: r.id }));
             await db.from("transaction_tags").insert(associations).select();
@@ -501,10 +515,7 @@ export const DataApi = {
 
   // Views: totals by month/type
   async monthlyTotals(month?: string): Promise<MonthlyTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_monthly_totals").select("*").eq("user_id", userId);
     if (month) q = q.eq("month", month);
     const { data, error } = await q;
@@ -513,10 +524,7 @@ export const DataApi = {
   },
 
   async yearlyTotals(year?: string): Promise<YearlyTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_yearly_totals").select("*").eq("user_id", userId);
     if (year) q = q.eq("year", year);
     const { data, error } = await q;
@@ -525,10 +533,7 @@ export const DataApi = {
   },
 
   async monthlyCategoryTotals(month?: string): Promise<MonthlyCategoryTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_monthly_category_totals").select("*").eq("user_id", userId);
     if (month) q = q.eq("month", month);
     const { data, error } = await q;
@@ -537,10 +542,7 @@ export const DataApi = {
   },
 
   async yearlyCategoryTotals(year?: string): Promise<YearlyCategoryTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_yearly_category_totals").select("*").eq("user_id", userId);
     if (year) q = q.eq("year", year);
     const { data, error } = await q;
@@ -549,10 +551,7 @@ export const DataApi = {
   },
 
   async monthlyTaggedTypeTotals(month?: string, tagsAny?: string[]): Promise<MonthlyTaggedTypeTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_monthly_tagged_type_totals").select("*").eq("user_id", userId);
     if (month) q = q.eq("month", month);
     if (tagsAny?.length) q = q.overlaps("tags", tagsAny);
@@ -562,10 +561,7 @@ export const DataApi = {
   },
 
   async yearlyTaggedTypeTotals(year?: string, tagsAny?: string[]): Promise<YearlyTaggedTypeTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_yearly_tagged_type_totals").select("*").eq("user_id", userId);
     if (year) q = q.eq("year", year);
     if (tagsAny?.length) q = q.overlaps("tags", tagsAny);
@@ -575,10 +571,7 @@ export const DataApi = {
   },
 
   async taggedTypeTotals(tagsAny?: string[]): Promise<TaggedTypeTotalsRow[]> {
-    const { data: authData, error: authError } = await db.auth.getUser();
-    if (authError) throw authError;
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await requireUserId();
     let q = db.from("view_tagged_type_totals").select("*").eq("user_id", userId);
     if (tagsAny?.length) q = q.overlaps("tags", tagsAny);
     const { data, error } = await q;
