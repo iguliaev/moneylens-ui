@@ -117,7 +117,7 @@ test.describe('Transactions', () => {
     await expect(categoryCell).toBeVisible();
   });
   
-  test('user can edit transaction', async ({ page }) => {
+  test('user can edit spend transaction', async ({ page }) => {
     // First create a transaction
     await page.goto('/spend');
     
@@ -147,7 +147,7 @@ test.describe('Transactions', () => {
     await expect(page.getByTestId('spend-row-notes').filter({ hasText: 'Original transaction' })).not.toBeVisible();
   });
   
-  test('user can delete transaction', async ({ page }) => {
+  test('user can delete spend transaction', async ({ page }) => {
     await page.goto('/spend');
     
     await page.getByTestId('spend-form-amount').fill('75.00');
