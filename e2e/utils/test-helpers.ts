@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './backend-types';
+import type { Database, TablesInsert } from './backend-types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -44,31 +44,25 @@ export async function seedReferenceDataForUser(userId: string) {
   const now = new Date().toISOString();
 
   // Categories for each type
-  await supabaseAdmin.from('categories').upsert(
-    [
-      { user_id: userId, type: 'spend', name: 'Groceries', description: 'Groceries', created_at: now, updated_at: now },
-      { user_id: userId, type: 'earn', name: 'Salary', description: 'Salary', created_at: now, updated_at: now },
-      { user_id: userId, type: 'save', name: 'Savings', description: 'Savings', created_at: now, updated_at: now },
-    ] as any[],
-    { onConflict: 'user_id,type,name' }
-  );
+  const categories: TablesInsert<'categories'>[] = [
+    { user_id: userId, type: 'spend', name: 'Groceries', description: 'Groceries', created_at: now, updated_at: now },
+    { user_id: userId, type: 'earn', name: 'Salary', description: 'Salary', created_at: now, updated_at: now },
+    { user_id: userId, type: 'save', name: 'Savings', description: 'Savings', created_at: now, updated_at: now },
+  ];
+  await supabaseAdmin.from('categories').upsert(categories, { onConflict: 'user_id,type,name' });
 
   // One bank account
-  await supabaseAdmin.from('bank_accounts').upsert(
-    [
-      { user_id: userId, name: 'Main Account', description: 'Primary bank account', created_at: now, updated_at: now },
-    ] as any[],
-    { onConflict: 'user_id,name' }
-  );
+  const bankAccounts: TablesInsert<'bank_accounts'>[] = [
+    { user_id: userId, name: 'Main Account', description: 'Primary bank account', created_at: now, updated_at: now },
+  ];
+  await supabaseAdmin.from('bank_accounts').upsert(bankAccounts, { onConflict: 'user_id,name' });
 
   // A couple of tags
-  await supabaseAdmin.from('tags').upsert(
-    [
-      { user_id: userId, name: 'essentials', description: 'Essential expenses', created_at: now, updated_at: now },
-      { user_id: userId, name: 'monthly', description: 'Monthly items', created_at: now, updated_at: now },
-    ] as any[],
-    { onConflict: 'user_id,name' }
-  );
+  const tags: TablesInsert<'tags'>[] = [
+    { user_id: userId, name: 'essentials', description: 'Essential expenses', created_at: now, updated_at: now },
+    { user_id: userId, name: 'monthly', description: 'Monthly items', created_at: now, updated_at: now },
+  ];
+  await supabaseAdmin.from('tags').upsert(tags, { onConflict: 'user_id,name' });
 }
 
 // Cleanup reference data that was seeded for a given user
