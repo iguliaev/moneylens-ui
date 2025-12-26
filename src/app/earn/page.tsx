@@ -463,7 +463,7 @@ export default function EarnPage() {
               </button>
               <span className="text-sm px-2">Page {page}</span>
               <button 
-                data-testid="next-page"
+                data-testid="earn-next-page"
                 className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1" 
                 disabled={!hasNextPage || rows.length === 0}
                 onClick={() => setPage((p) => p + 1)}
