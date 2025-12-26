@@ -612,7 +612,7 @@ export default function EarnPage() {
                             <Save size={18} />
                           </button>
                           <button
-                            data-testid="cancel-edit"
+                            data-testid="earn-cancel-edit"
                             className="px-2 py-1 rounded border hover:bg-gray-100"
                             onClick={cancelEdit}
                             title="Cancel editing"
