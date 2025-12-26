@@ -294,6 +294,7 @@ export default function EarnPage() {
             className="border rounded px-2 py-1"
             value={month.slice(0, 7)}
             onChange={(e) => setMonth(`${e.target.value}-01`)}
+            data-testid="earn-month-input"
           />
         </div>
       </header>
@@ -324,11 +325,23 @@ export default function EarnPage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">From</label>
-            <input type="date" className="border rounded px-2 py-1 w-full" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
+            <input
+              type="date"
+              className="border rounded px-2 py-1 w-full"
+              value={filters.from}
+              onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+              data-testid="earn-filter-from"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">To</label>
-            <input type="date" className="border rounded px-2 py-1 w-full" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
+            <input
+              type="date"
+              className="border rounded px-2 py-1 w-full"
+              value={filters.to}
+              onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+              data-testid="earn-filter-to"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">Bank Account</label>
@@ -350,11 +363,11 @@ export default function EarnPage() {
           </div>
         </div>
         <div className="mt-3 flex gap-2">
-          <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setPage(1); fetchTransactions(); }} aria-label="Apply filters">
+          <button data-testid="earn-apply-filters" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setPage(1); fetchTransactions(); }} aria-label="Apply filters">
             <Check size={18} />
             <span>Apply</span>
           </button>
-          <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }} aria-label="Reset filters">
+          <button data-testid="earn-reset-filters" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }} aria-label="Reset filters">
             <RotateCcw size={18} />
             <span>Reset</span>
           </button>
@@ -365,7 +378,14 @@ export default function EarnPage() {
   <form onSubmit={handleCreate} className="border rounded p-4 grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
           <div>
             <label className="block text-xs text-gray-500">Date</label>
-            <input type="date" className="border rounded px-2 py-1 w-full" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+            <input
+              type="date"
+              className="border rounded px-2 py-1 w-full"
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              required
+              data-testid="earn-form-date"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">Category</label>
@@ -382,7 +402,15 @@ export default function EarnPage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">Amount</label>
-            <input type="number" step="0.01" className="border rounded px-2 py-1 w-full" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
+            <input
+              type="number"
+              step="0.01"
+              className="border rounded px-2 py-1 w-full"
+              value={form.amount}
+              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              required
+              data-testid="earn-form-amount"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">Bank Account</label>
@@ -404,10 +432,16 @@ export default function EarnPage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">Notes</label>
-            <input type="text" className="border rounded px-2 py-1 w-full" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 w-full"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              data-testid="earn-form-notes"
+            />
           </div>
           <div className="md:col-span-6 flex justify-end">
-            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new earning transaction">
+            <button data-testid="earn-add-transaction" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new earning transaction">
               <Plus size={18} />
               <span>{saving ? "Saving…" : "Add Earning"}</span>
             </button>
@@ -419,6 +453,7 @@ export default function EarnPage() {
             <h2 className="text-lg font-medium">Transactions</h2>
             <div className="flex items-center gap-2">
               <button 
+                data-testid="earn-prev-page"
                 className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1" 
                 disabled={page <= 1 || rows.length === 0}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -428,6 +463,7 @@ export default function EarnPage() {
               </button>
               <span className="text-sm px-2">Page {page}</span>
               <button 
+                data-testid="earn-next-page"
                 className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1" 
                 disabled={!hasNextPage || rows.length === 0}
                 onClick={() => setPage((p) => p + 1)}
@@ -435,7 +471,12 @@ export default function EarnPage() {
               >
                 <ChevronRight size={18} />
               </button>
-              <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50" disabled={!Object.values(selected).some(Boolean) || saving} onClick={deleteSelected} aria-label="Delete selected transactions">
+              <button
+                data-testid="earn-delete-selected"
+                className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50"
+                disabled={!Object.values(selected).some(Boolean) || saving}
+                onClick={deleteSelected}
+                aria-label="Delete selected transactions">
                 <Trash2 size={18} />
                 <span>Delete Selected</span>
               </button>
@@ -447,7 +488,13 @@ export default function EarnPage() {
               <thead>
                 <tr className="text-left text-gray-500">
                   <th className="py-2 w-8">
-                    <input type="checkbox" aria-label="Select all on page" checked={allOnPageSelected} onChange={toggleSelectAllPage} />
+                    <input
+                      type="checkbox"
+                      aria-label="Select all on page"
+                      checked={allOnPageSelected}
+                      onChange={toggleSelectAllPage}
+                      data-testid="earn-select-all"
+                    />
                   </th>
                   <th className="py-2">Date</th>
                   <th className="py-2">Category</th>
@@ -462,11 +509,23 @@ export default function EarnPage() {
                 {rows.map((t) => (
                   <tr key={t.id} className="border-t align-top">
                     <td className="py-2">
-                      <input type="checkbox" aria-label={`Select ${t.id}`} checked={!!selected[t.id]} onChange={() => toggleRow(t.id)} />
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${t.id}`}
+                        checked={!!selected[t.id]}
+                        onChange={() => toggleRow(t.id)}
+                        data-testid="earn-row-select"
+                      />
                     </td>
                     <td className="py-2">
                       {editingId === t.id ? (
-                        <input type="date" className="border rounded px-2 py-1" value={(editDraft.date as any) ?? t.date} onChange={(e) => setEditDraft({ ...editDraft, date: e.target.value })} />
+                        <input
+                          type="date"
+                          className="border rounded px-2 py-1"
+                          value={(editDraft.date as any) ?? t.date}
+                          onChange={(e) => setEditDraft({ ...editDraft, date: e.target.value })}
+                          data-testid="earn-edit-date"
+                        />
                       ) : (
                         new Date(t.date).toLocaleDateString()
                       )}
@@ -489,7 +548,15 @@ export default function EarnPage() {
                     </td>
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
-                        <input type="number" step="0.01" min="0" className="border rounded px-2 py-1 text-right" value={String((editDraft.amount as any) ?? t.amount)} onChange={(e) => setEditDraft({ ...editDraft, amount: e.target.value })} />
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="border rounded px-2 py-1 text-right"
+                          value={String((editDraft.amount as any) ?? t.amount)}
+                          onChange={(e) => setEditDraft({ ...editDraft, amount: e.target.value })}
+                          data-testid="earn-edit-amount"
+                        />
                       ) : (
                         fmtCurrency(t.amount)
                       )}
@@ -521,7 +588,13 @@ export default function EarnPage() {
                     </td>
                     <td className="py-2">
                       {editingId === t.id ? (
-                        <input type="text" className="border rounded px-2 py-1" value={(editDraft.notes as any) ?? t.notes ?? ""} onChange={(e) => setEditDraft({ ...editDraft, notes: e.target.value })} />
+                        <input
+                          type="text"
+                          className="border rounded px-2 py-1"
+                          value={(editDraft.notes as any) ?? t.notes ?? ""}
+                          onChange={(e) => setEditDraft({ ...editDraft, notes: e.target.value })}
+                          data-testid="earn-edit-notes"
+                        />
                       ) : (
                         t.notes || "—"
                       )}
@@ -529,19 +602,41 @@ export default function EarnPage() {
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes" aria-label="Save changes">
+                          <button
+                            data-testid="earn-save-edit"
+                            className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50"
+                            disabled={saving}
+                            onClick={saveEdit}
+                            title="Save changes"
+                            aria-label="Save changes">
                             <Save size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
+                          <button
+                            data-testid="earn-cancel-edit"
+                            className="px-2 py-1 rounded border hover:bg-gray-100"
+                            onClick={cancelEdit}
+                            title="Cancel editing"
+                            aria-label="Cancel editing">
                             <X size={18} />
                           </button>
                         </div>
                       ) : (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction" aria-label="Edit transaction">
+                          <button
+                            data-testid="earn-start-edit"
+                            className="px-2 py-1 rounded border hover:bg-blue-50"
+                            onClick={() => startEdit(t)}
+                            title="Edit transaction"
+                            aria-label="Edit transaction">
                             <Edit size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction" aria-label="Delete transaction">
+                          <button 
+                            data-testid="earn-delete-transaction"
+                            className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50"
+                            disabled={saving}
+                            onClick={() => deleteOne(t.id)}
+                            title="Delete transaction"
+                            aria-label="Delete transaction">
                             <Trash2 size={18} />
                           </button>
                         </div>

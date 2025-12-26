@@ -188,6 +188,7 @@ export function BulkUploadCard() {
             onChange={handleFileChange}
             className=""
             aria-label="Select JSON file with entities and transactions"
+            data-testid="bulk-upload-input"
           />
         </div>
 
@@ -210,6 +211,7 @@ export function BulkUploadCard() {
             onClick={handleUpload}
             disabled={isUploading || !file}
             className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60`}
+            data-testid="bulk-upload-submit"
           >
             {isUploading ? "Uploading..." : "Upload"}
           </button>
@@ -224,6 +226,7 @@ export function BulkUploadCard() {
               clearFileInput();
             }}
             className="px-3 py-2 border rounded text-sm"
+            data-testid="bulk-upload-clear"
           >
             Clear
           </button>
