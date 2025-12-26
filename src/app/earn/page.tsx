@@ -367,7 +367,7 @@ export default function EarnPage() {
             <Check size={18} />
             <span>Apply</span>
           </button>
-          <button data-testid="reset-filters" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }} aria-label="Reset filters">
+          <button data-testid="earn-reset-filters" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }} aria-label="Reset filters">
             <RotateCcw size={18} />
             <span>Reset</span>
           </button>
