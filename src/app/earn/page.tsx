@@ -363,7 +363,7 @@ export default function EarnPage() {
           </div>
         </div>
         <div className="mt-3 flex gap-2">
-          <button data-testid="apply-filters" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setPage(1); fetchTransactions(); }} aria-label="Apply filters">
+          <button data-testid="earn-apply-filters" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setPage(1); fetchTransactions(); }} aria-label="Apply filters">
             <Check size={18} />
             <span>Apply</span>
           </button>
