@@ -38,3 +38,55 @@ export async function loginUser(page: Page, email: string, password: string) {
   await page.click('input[type="submit"]');
   await page.waitForURL('/dashboard', { timeout: 10000 });
 }
+
+// Seed minimal reference data (categories, bank accounts, tags) for a given user
+export async function seedReferenceDataForUser(userId: string) {
+  const now = new Date().toISOString();
+
+  // Categories for each type
+  await supabaseAdmin.from('categories').upsert(
+    [
+      { user_id: userId, type: 'spend', name: 'Groceries', description: 'Groceries', created_at: now, updated_at: now },
+      { user_id: userId, type: 'earn', name: 'Salary', description: 'Salary', created_at: now, updated_at: now },
+      { user_id: userId, type: 'save', name: 'Savings', description: 'Savings', created_at: now, updated_at: now },
+    ] as any[],
+    { onConflict: 'user_id,type,name' }
+  );
+
+  // One bank account
+  await supabaseAdmin.from('bank_accounts').upsert(
+    [
+      { user_id: userId, name: 'Main Account', description: 'Primary bank account', created_at: now, updated_at: now },
+    ] as any[],
+    { onConflict: 'user_id,name' }
+  );
+
+  // A couple of tags
+  await supabaseAdmin.from('tags').upsert(
+    [
+      { user_id: userId, name: 'essentials', description: 'Essential expenses', created_at: now, updated_at: now },
+      { user_id: userId, name: 'monthly', description: 'Monthly items', created_at: now, updated_at: now },
+    ] as any[],
+    { onConflict: 'user_id,name' }
+  );
+}
+
+// Cleanup reference data that was seeded for a given user
+export async function cleanupReferenceDataForUser(userId: string) {
+  // Best-effort cleanup; ignore errors so tests can still tear down user
+  try {
+    await supabaseAdmin.from('categories').delete().eq('user_id', userId);
+  } catch {
+    // noop
+  }
+  try {
+    await supabaseAdmin.from('bank_accounts').delete().eq('user_id', userId);
+  } catch {
+    // noop
+  }
+  try {
+    await supabaseAdmin.from('tags').delete().eq('user_id', userId);
+  } catch {
+    // noop
+  }
+}
