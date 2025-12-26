@@ -21,7 +21,7 @@ export const Menu = () => {
           </li>
         ))}
       </ul>
-      <button onClick={() => logout()}>Logout</button>
+      <button data-testid="logout" onClick={() => logout()}>Logout</button>
     </nav>
   );
 };

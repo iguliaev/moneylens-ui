@@ -73,15 +73,15 @@ export default function DashboardPage() {
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard — {monthLabel}</h1>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-1 rounded border" onClick={() => setMonth((m) => addMonths(m, -1))}>&larr; Prev</button>
+          <button data-testid="prev-month" className="px-3 py-1 rounded border" onClick={() => setMonth((m) => addMonths(m, -1))}>&larr; Prev</button>
           <input
             type="month"
             className="border rounded px-2 py-1"
             value={month.slice(0, 7)}
             onChange={(e) => setMonth(`${e.target.value}-01`)}
           />
-          <button className="px-3 py-1 rounded border" onClick={() => setMonth(startOfMonthISO())}>This Month</button>
-          <button className="px-3 py-1 rounded border" onClick={() => setMonth((m) => addMonths(m, 1))}>Next &rarr;</button>
+          <button data-testid="this-month" className="px-3 py-1 rounded border" onClick={() => setMonth(startOfMonthISO())}>This Month</button>
+          <button data-testid="next-month" className="px-3 py-1 rounded border" onClick={() => setMonth((m) => addMonths(m, 1))}>Next &rarr;</button>
         </div>
       </header>
 

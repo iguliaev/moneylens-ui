@@ -294,6 +294,7 @@ export default function SavePage() {
             className="border rounded px-2 py-1"
             value={month.slice(0, 7)}
             onChange={(e) => setMonth(`${e.target.value}-01`)}
+            data-testid="save-month-input"
           />
         </div>
       </header>
@@ -324,11 +325,23 @@ export default function SavePage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">From</label>
-            <input type="date" className="border rounded px-2 py-1 w-full" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
+            <input
+              type="date"
+              className="border rounded px-2 py-1 w-full"
+              value={filters.from}
+              onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+              data-testid="save-filter-from"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">To</label>
-            <input type="date" className="border rounded px-2 py-1 w-full" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
+            <input
+              type="date"
+              className="border rounded px-2 py-1 w-full"
+              value={filters.to}
+              onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+              data-testid="save-filter-to"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">Bank Account</label>
@@ -350,11 +363,21 @@ export default function SavePage() {
           </div>
         </div>
         <div className="mt-3 flex gap-2">
-          <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setPage(1); fetchTransactions(); }} aria-label="Apply filters">
+          <button
+            className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100"
+            onClick={() => { setPage(1); fetchTransactions(); }}
+            aria-label="Apply filters"
+            data-testid="save-apply-filters"
+          >
             <Check size={18} />
             <span>Apply</span>
           </button>
-          <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100" onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }} aria-label="Reset filters">
+          <button
+            className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100"
+            onClick={() => { setFilters({ categoryId: "", from: month, to: endOfMonthFromStart(month), bankAccountId: "", tag: "" }); setPage(1); fetchTransactions(); }}
+            aria-label="Reset filters"
+            data-testid="save-reset-filters"
+          >
             <RotateCcw size={18} />
             <span>Reset</span>
           </button>
@@ -365,7 +388,14 @@ export default function SavePage() {
         <form onSubmit={handleCreate} className="border rounded p-4 grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
           <div>
             <label className="block text-xs text-gray-500">Date</label>
-            <input type="date" className="border rounded px-2 py-1 w-full" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+            <input
+              type="date"
+              className="border rounded px-2 py-1 w-full"
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              required
+              data-testid="save-form-date"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">Category</label>
@@ -382,7 +412,15 @@ export default function SavePage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">Amount</label>
-            <input type="number" step="0.01" className="border rounded px-2 py-1 w-full" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
+            <input
+              type="number"
+              step="0.01"
+              className="border rounded px-2 py-1 w-full"
+              value={form.amount}
+              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              required
+              data-testid="save-form-amount"
+            />
           </div>
           <div>
             <label className="block text-xs text-gray-500">Bank Account</label>
@@ -404,10 +442,21 @@ export default function SavePage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">Notes</label>
-            <input type="text" className="border rounded px-2 py-1 w-full" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 w-full"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              data-testid="save-form-notes"
+            />
           </div>
           <div className="md:col-span-6 flex justify-end">
-            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new saving transaction">
+            <button
+              className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
+              disabled={saving}
+              aria-label="Add new saving transaction"
+              data-testid="save-add-transaction"
+            >
               <Plus size={18} />
               <span>{saving ? "Saving…" : "Add Saving"}</span>
             </button>
@@ -423,6 +472,7 @@ export default function SavePage() {
                 disabled={page <= 1 || rows.length === 0}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 aria-label="Previous page"
+                data-testid="save-prev-page"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -432,10 +482,17 @@ export default function SavePage() {
                 disabled={!hasNextPage || rows.length === 0}
                 onClick={() => setPage((p) => p + 1)}
                 aria-label="Next page"
+                data-testid="save-next-page"
               >
                 <ChevronRight size={18} />
               </button>
-              <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50" disabled={!Object.values(selected).some(Boolean) || saving} onClick={deleteSelected} aria-label="Delete selected transactions">
+              <button
+                className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50"
+                disabled={!Object.values(selected).some(Boolean) || saving}
+                onClick={deleteSelected}
+                aria-label="Delete selected transactions"
+                data-testid="save-delete-selected"
+              >
                 <Trash2 size={18} />
                 <span>Delete Selected</span>
               </button>
@@ -447,7 +504,13 @@ export default function SavePage() {
               <thead>
                 <tr className="text-left text-gray-500">
                   <th className="py-2 w-8">
-                    <input type="checkbox" aria-label="Select all on page" checked={allOnPageSelected} onChange={toggleSelectAllPage} />
+                    <input
+                      type="checkbox"
+                      aria-label="Select all on page"
+                      checked={allOnPageSelected}
+                      onChange={toggleSelectAllPage}
+                      data-testid="save-select-all"
+                    />
                   </th>
                   <th className="py-2">Date</th>
                   <th className="py-2">Category</th>
@@ -462,11 +525,23 @@ export default function SavePage() {
                 {rows.map((t) => (
                   <tr key={t.id} className="border-t align-top">
                     <td className="py-2">
-                      <input type="checkbox" aria-label={`Select ${t.id}`} checked={!!selected[t.id]} onChange={() => toggleRow(t.id)} />
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${t.id}`}
+                        checked={!!selected[t.id]}
+                        onChange={() => toggleRow(t.id)}
+                        data-testid="save-row-select"
+                      />
                     </td>
                     <td className="py-2">
                       {editingId === t.id ? (
-                        <input type="date" className="border rounded px-2 py-1" value={(editDraft.date as any) ?? t.date} onChange={(e) => setEditDraft({ ...editDraft, date: e.target.value })} />
+                        <input
+                          type="date"
+                          className="border rounded px-2 py-1"
+                          value={(editDraft.date as any) ?? t.date}
+                          onChange={(e) => setEditDraft({ ...editDraft, date: e.target.value })}
+                          data-testid="save-edit-date"
+                        />
                       ) : (
                         new Date(t.date).toLocaleDateString()
                       )}
@@ -489,7 +564,15 @@ export default function SavePage() {
                     </td>
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
-                        <input type="number" step="0.01" min="0" className="border rounded px-2 py-1 text-right" value={String((editDraft.amount as any) ?? t.amount)} onChange={(e) => setEditDraft({ ...editDraft, amount: e.target.value })} />
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="border rounded px-2 py-1 text-right"
+                          value={String((editDraft.amount as any) ?? t.amount)}
+                          onChange={(e) => setEditDraft({ ...editDraft, amount: e.target.value })}
+                          data-testid="save-edit-amount"
+                        />
                       ) : (
                         fmtCurrency(t.amount)
                       )}
@@ -521,7 +604,13 @@ export default function SavePage() {
                     </td>
                     <td className="py-2">
                       {editingId === t.id ? (
-                        <input type="text" className="border rounded px-2 py-1" value={(editDraft.notes as any) ?? t.notes ?? ""} onChange={(e) => setEditDraft({ ...editDraft, notes: e.target.value })} />
+                        <input
+                          type="text"
+                          className="border rounded px-2 py-1"
+                          value={(editDraft.notes as any) ?? t.notes ?? ""}
+                          onChange={(e) => setEditDraft({ ...editDraft, notes: e.target.value })}
+                          data-testid="save-edit-notes"
+                        />
                       ) : (
                         t.notes || "—"
                       )}

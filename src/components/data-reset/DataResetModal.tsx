@@ -118,6 +118,7 @@ export function DataResetModal({
                 autoFocus
                 maxLength={10}
                 className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                data-testid="data-reset-confirm-input"
               />
             </div>
 
@@ -134,6 +135,7 @@ export function DataResetModal({
                 onClick={onClose}
                 disabled={isLoading}
                 className="px-4 py-2 border border-gray-300 rounded font-medium text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                data-testid="data-reset-cancel"
               >
                 Cancel
               </button>
@@ -141,6 +143,7 @@ export function DataResetModal({
                 onClick={handleConfirm}
                 disabled={!isConfirmed || isLoading}
                 className="px-4 py-2 bg-red-600 text-white rounded font-medium text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                data-testid="data-reset-confirm"
               >
                 {isLoading ? (
                   <>
