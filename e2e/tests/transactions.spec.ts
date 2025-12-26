@@ -169,4 +169,110 @@ test.describe('Transactions', () => {
     await expect(page.getByTestId('spend-row-notes').filter({ hasText: 'To be deleted' })).not.toBeVisible();
     await expect(page.getByTestId('spend-row-amount').filter({ hasText: '75.00' })).not.toBeVisible();
   });
+
+  test('user can edit earn transaction', async ({ page }) => {
+    // First create a transaction
+    await page.goto('/earn');
+    
+    await page.getByTestId('earn-form-amount').fill('500.00');
+    await page.getByTestId('earn-form-date').fill('2025-12-20');
+    await page.getByTestId('earn-form-notes').fill('Original earn');
+    await page.getByTestId('earn-form-category').selectOption({ label: 'Salary' });
+    await page.getByTestId('earn-add-transaction').click();
+    
+    // Wait for transaction to appear
+    await expect(page.getByTestId('earn-row-notes').filter({ hasText: 'Original earn' })).toBeVisible();
+    
+    // Click edit on the first row
+    await page.getByTestId('earn-start-edit').first().click();
+    
+    // Edit the amount and notes
+    await page.getByTestId('earn-edit-amount').fill('750.00');
+    await page.getByTestId('earn-edit-notes').fill('Updated earn');
+    await page.getByTestId('earn-save-edit').click();
+    
+    // Verify the updated values appear
+    await expect(page.getByTestId('earn-row-amount').filter({ hasText: '750.00' })).toBeVisible();
+    await expect(page.getByTestId('earn-row-notes').filter({ hasText: 'Updated earn' })).toBeVisible();
+    
+    // Verify old values don't appear
+    await expect(page.getByTestId('earn-row-amount').filter({ hasText: '500.00' })).not.toBeVisible();
+    await expect(page.getByTestId('earn-row-notes').filter({ hasText: 'Original earn' })).not.toBeVisible();
+  });
+  
+  test('user can delete earn transaction', async ({ page }) => {
+    await page.goto('/earn');
+    
+    await page.getByTestId('earn-form-amount').fill('300.00');
+    await page.getByTestId('earn-form-date').fill('2025-12-20');
+    await page.getByTestId('earn-form-notes').fill('Earn to be deleted');
+    await page.getByTestId('earn-form-category').selectOption({ label: 'Salary' });
+    await page.getByTestId('earn-add-transaction').click();
+    
+    // Wait for transaction to appear
+    const notesCell = page.getByTestId('earn-row-notes').filter({ hasText: 'Earn to be deleted' });
+    await expect(notesCell).toBeVisible();
+    const amountCell = page.getByTestId('earn-row-amount').filter({ hasText: '300.00' });
+    await expect(amountCell).toBeVisible();
+    
+    // Delete the first transaction
+    await page.getByTestId('earn-delete-transaction').first().click();
+    
+    // Verify it's gone
+    await expect(page.getByTestId('earn-row-notes').filter({ hasText: 'Earn to be deleted' })).not.toBeVisible();
+    await expect(page.getByTestId('earn-row-amount').filter({ hasText: '300.00' })).not.toBeVisible();
+  });
+
+  test('user can edit save transaction', async ({ page }) => {
+    // First create a transaction
+    await page.goto('/save');
+    
+    await page.getByTestId('save-form-amount').fill('100.00');
+    await page.getByTestId('save-form-date').fill('2025-12-20');
+    await page.getByTestId('save-form-notes').fill('Original save');
+    await page.getByTestId('save-form-category').selectOption({ label: 'Savings' });
+    await page.getByTestId('save-add-transaction').click();
+    
+    // Wait for transaction to appear
+    await expect(page.getByTestId('save-row-notes').filter({ hasText: 'Original save' })).toBeVisible();
+    
+    // Click edit on the first row
+    await page.getByTestId('save-start-edit').first().click();
+    
+    // Edit the amount and notes
+    await page.getByTestId('save-edit-amount').fill('250.00');
+    await page.getByTestId('save-edit-notes').fill('Updated save');
+    await page.getByTestId('save-save-edit').click();
+    
+    // Verify the updated values appear
+    await expect(page.getByTestId('save-row-amount').filter({ hasText: '250.00' })).toBeVisible();
+    await expect(page.getByTestId('save-row-notes').filter({ hasText: 'Updated save' })).toBeVisible();
+    
+    // Verify old values don't appear
+    await expect(page.getByTestId('save-row-amount').filter({ hasText: '100.00' })).not.toBeVisible();
+    await expect(page.getByTestId('save-row-notes').filter({ hasText: 'Original save' })).not.toBeVisible();
+  });
+  
+  test('user can delete save transaction', async ({ page }) => {
+    await page.goto('/save');
+    
+    await page.getByTestId('save-form-amount').fill('150.00');
+    await page.getByTestId('save-form-date').fill('2025-12-20');
+    await page.getByTestId('save-form-notes').fill('Save to be deleted');
+    await page.getByTestId('save-form-category').selectOption({ label: 'Savings' });
+    await page.getByTestId('save-add-transaction').click();
+    
+    // Wait for transaction to appear
+    const notesCell = page.getByTestId('save-row-notes').filter({ hasText: 'Save to be deleted' });
+    await expect(notesCell).toBeVisible();
+    const amountCell = page.getByTestId('save-row-amount').filter({ hasText: '150.00' });
+    await expect(amountCell).toBeVisible();
+    
+    // Delete the first transaction
+    await page.getByTestId('save-delete-transaction').first().click();
+    
+    // Verify it's gone
+    await expect(page.getByTestId('save-row-notes').filter({ hasText: 'Save to be deleted' })).not.toBeVisible();
+    await expect(page.getByTestId('save-row-amount').filter({ hasText: '150.00' })).not.toBeVisible();
+  });
 });
