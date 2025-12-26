@@ -631,7 +631,7 @@ export default function EarnPage() {
                             <Edit size={18} />
                           </button>
                           <button 
-                            data-testid="delete-transaction"
+                            data-testid="earn-delete-transaction"
                             className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50"
                             disabled={saving}
                             onClick={() => deleteOne(t.id)}
