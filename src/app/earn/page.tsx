@@ -441,7 +441,7 @@ export default function EarnPage() {
             />
           </div>
           <div className="md:col-span-6 flex justify-end">
-            <button data-testid="add-earning" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new earning transaction">
+            <button data-testid="earn-add-transaction" className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new earning transaction">
               <Plus size={18} />
               <span>{saving ? "Saving…" : "Add Earning"}</span>
             </button>
