@@ -472,7 +472,7 @@ export default function EarnPage() {
                 <ChevronRight size={18} />
               </button>
               <button
-                data-testid="delete-selected"
+                data-testid="earn-delete-selected"
                 className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50"
                 disabled={!Object.values(selected).some(Boolean) || saving}
                 onClick={deleteSelected}
