@@ -623,7 +623,7 @@ export default function EarnPage() {
                       ) : (
                         <div className="flex gap-2 justify-end">
                           <button
-                            data-testid="start-edit"
+                            data-testid="earn-start-edit"
                             className="px-2 py-1 rounded border hover:bg-blue-50"
                             onClick={() => startEdit(t)}
                             title="Edit transaction"
