@@ -23,7 +23,10 @@ export default function TagsMultiSelect({
 
   // Helper to slugify tag names for testids
   const slugify = (str: string) =>
-    str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
