@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { slugify } from "@/utils/slugify";
 
 export default function TagsMultiSelect({
   options,
@@ -20,13 +21,6 @@ export default function TagsMultiSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement | null>(null);
-
-  // Helper to slugify tag names for testids
-  const slugify = (str: string) =>
-    str
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {

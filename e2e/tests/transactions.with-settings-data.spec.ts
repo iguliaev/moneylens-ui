@@ -1,58 +1,15 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import {
   createTestUser,
   deleteTestUser,
   loginUser,
   cleanupTransactionsForUser,
   cleanupReferenceDataForUser,
+  createBankAccount,
+  createTag,
+  createCategoryForType,
+  selectTags,
 } from "../utils/test-helpers";
-
-// Helper to create reference data via Settings UI
-async function createBankAccount(page: any, name: string) {
-  await page.goto("/settings/bank-accounts");
-  await page.getByTestId("bank-accounts-create-name").fill(name);
-  await page.getByTestId("bank-accounts-create-description").fill("e2e");
-  await page.getByTestId("bank-accounts-create-submit").click();
-  await expect(
-    page.getByTestId("bank-accounts-row").filter({ hasText: name }),
-  ).toBeVisible();
-}
-
-async function createTag(page: any, name: string) {
-  await page.goto("/settings/tags");
-  await page.getByTestId("tags-create-name").fill(name);
-  await page.getByTestId("tags-create-description").fill("e2e");
-  await page.getByTestId("tags-create-submit").click();
-  await expect(
-    page.getByTestId("tags-row").filter({ hasText: name }),
-  ).toBeVisible();
-}
-
-async function createCategoryForType(page: any, type: string, name: string) {
-  await page.goto("/settings/categories");
-  await page.getByTestId(`categories-type-${type}`).click();
-  await page.getByTestId("categories-create-name").fill(name);
-  await page.getByTestId("categories-create-description").fill("e2e");
-  await page.getByTestId("categories-create-submit").click();
-  await expect(
-    page.getByTestId("categories-row").filter({ hasText: name }),
-  ).toBeVisible();
-}
-
-// Helper to select multiple tags (requires TagsMultiSelect testId implementation)
-async function selectTags(page: any, testId: string, tagNames: string[]) {
-  // Open dropdown
-  await page.getByTestId(`${testId}-button`).click();
-
-  // Select each tag
-  for (const tagName of tagNames) {
-    const slug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    await page.getByTestId(`${testId}-option-${slug}`).click();
-  }
-
-  // Close dropdown
-  await page.keyboard.press("Escape");
-}
 
 test.describe("Transactions: CRUD with Settings-created assignments", () => {
   let testUser: { email: string; password: string; userId: string };
@@ -62,7 +19,6 @@ test.describe("Transactions: CRUD with Settings-created assignments", () => {
   });
 
   test.afterAll(async () => {
-    await cleanupTransactionsForUser(testUser.userId);
     await cleanupReferenceDataForUser(testUser.userId);
     await deleteTestUser(testUser.userId);
   });
