@@ -49,20 +49,23 @@ export async function seedReferenceDataForUser(userId: string) {
     { user_id: userId, type: 'earn', name: 'Salary', description: 'Salary', created_at: now, updated_at: now },
     { user_id: userId, type: 'save', name: 'Savings', description: 'Savings', created_at: now, updated_at: now },
   ];
-  await supabaseAdmin.from('categories').upsert(categories, { onConflict: 'user_id,type,name' });
+  const { error: categoriesError } = await supabaseAdmin.from('categories').upsert(categories, { onConflict: 'user_id,type,name' });
+  if (categoriesError) throw new Error(`Failed to seed categories: ${categoriesError.message}`);
 
   // One bank account
   const bankAccounts: TablesInsert<'bank_accounts'>[] = [
     { user_id: userId, name: 'Main Account', description: 'Primary bank account', created_at: now, updated_at: now },
   ];
-  await supabaseAdmin.from('bank_accounts').upsert(bankAccounts, { onConflict: 'user_id,name' });
+  const { error: bankAccountsError } = await supabaseAdmin.from('bank_accounts').upsert(bankAccounts, { onConflict: 'user_id,name' });
+  if (bankAccountsError) throw new Error(`Failed to seed bank accounts: ${bankAccountsError.message}`);
 
   // A couple of tags
   const tags: TablesInsert<'tags'>[] = [
     { user_id: userId, name: 'essentials', description: 'Essential expenses', created_at: now, updated_at: now },
     { user_id: userId, name: 'monthly', description: 'Monthly items', created_at: now, updated_at: now },
   ];
-  await supabaseAdmin.from('tags').upsert(tags, { onConflict: 'user_id,name' });
+  const { error: tagsError } = await supabaseAdmin.from('tags').upsert(tags, { onConflict: 'user_id,name' });
+  if (tagsError) throw new Error(`Failed to seed tags: ${tagsError.message}`);
 }
 
 // Cleanup reference data that was seeded for a given user
@@ -80,6 +83,15 @@ export async function cleanupReferenceDataForUser(userId: string) {
   }
   try {
     await supabaseAdmin.from('tags').delete().eq('user_id', userId);
+  } catch {
+    // noop
+  }
+}
+
+// Delete all transactions for a given user
+export async function cleanupTransactionsForUser(userId: string) {
+  try {
+    await supabaseAdmin.from('transactions').delete().eq('user_id', userId);
   } catch {
     // noop
   }

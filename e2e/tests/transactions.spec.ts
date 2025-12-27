@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createTestUser, deleteTestUser, loginUser, seedReferenceDataForUser, cleanupReferenceDataForUser } from '../utils/test-helpers';
+import { createTestUser, deleteTestUser, loginUser, seedReferenceDataForUser, cleanupReferenceDataForUser, cleanupTransactionsForUser } from '../utils/test-helpers';
 
 test.describe('Transactions', () => {
   let testUser: { email: string; password: string; userId: string };
@@ -19,6 +19,11 @@ test.describe('Transactions', () => {
   test.beforeEach(async ({ page }) => {
     // Ensure each test starts from an authenticated session
     await loginUser(page, testUser.email, testUser.password);
+  });
+
+  test.afterEach(async () => {
+    // Clean up transactions after each test for isolation
+    await cleanupTransactionsForUser(testUser.userId);
   });
   
   test('user can create spend transaction', async ({ page }) => {
