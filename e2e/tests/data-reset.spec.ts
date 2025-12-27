@@ -79,17 +79,23 @@ test.describe("Data Reset", () => {
     // Verify data exists before reset
     await page.goto("/spend");
     await expect(
-      page.getByTestId("spend-row-notes").filter({ hasText: "Test spend for reset" }),
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "Test spend for reset" }),
     ).toBeVisible();
 
     await page.goto("/earn");
     await expect(
-      page.getByTestId("earn-row-notes").filter({ hasText: "Test earn for reset" }),
+      page
+        .getByTestId("earn-row-notes")
+        .filter({ hasText: "Test earn for reset" }),
     ).toBeVisible();
 
     await page.goto("/save");
     await expect(
-      page.getByTestId("save-row-notes").filter({ hasText: "Test save for reset" }),
+      page
+        .getByTestId("save-row-notes")
+        .filter({ hasText: "Test save for reset" }),
     ).toBeVisible();
 
     await page.goto("/settings/categories");
@@ -104,7 +110,9 @@ test.describe("Data Reset", () => {
     ).toBeVisible();
 
     await page.goto("/settings/tags");
-    await expect(page.getByTestId("tags-row").filter({ hasText: "essentials" })).toBeVisible();
+    await expect(
+      page.getByTestId("tags-row").filter({ hasText: "essentials" }),
+    ).toBeVisible();
 
     // Navigate to settings and trigger reset
     await page.goto("/settings");
@@ -115,24 +123,32 @@ test.describe("Data Reset", () => {
     await page.getByTestId("data-reset-confirm").click();
 
     // Wait for success message
-    await expect(page.getByTestId("data-reset-success")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("data-reset-success")).toBeVisible({
+      timeout: 15000,
+    });
 
     // Verify all data is deleted
 
     // Transactions should be empty
     await page.goto("/spend");
     await expect(
-      page.getByTestId("spend-row-notes").filter({ hasText: "Test spend for reset" }),
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "Test spend for reset" }),
     ).not.toBeVisible();
 
     await page.goto("/earn");
     await expect(
-      page.getByTestId("earn-row-notes").filter({ hasText: "Test earn for reset" }),
+      page
+        .getByTestId("earn-row-notes")
+        .filter({ hasText: "Test earn for reset" }),
     ).not.toBeVisible();
 
     await page.goto("/save");
     await expect(
-      page.getByTestId("save-row-notes").filter({ hasText: "Test save for reset" }),
+      page
+        .getByTestId("save-row-notes")
+        .filter({ hasText: "Test save for reset" }),
     ).not.toBeVisible();
 
     // Categories should be empty
@@ -150,6 +166,8 @@ test.describe("Data Reset", () => {
 
     // Tags should be empty
     await page.goto("/settings/tags");
-    await expect(page.getByTestId("tags-row").filter({ hasText: "essentials" })).not.toBeVisible();
+    await expect(
+      page.getByTestId("tags-row").filter({ hasText: "essentials" }),
+    ).not.toBeVisible();
   });
 });

@@ -23,7 +23,9 @@ test.describe("Bulk Upload", () => {
     await loginUser(page, testUser.email, testUser.password);
   });
 
-  test("user can bulk upload valid JSON with all entity types", async ({ page }) => {
+  test("user can bulk upload valid JSON with all entity types", async ({
+    page,
+  }) => {
     await page.goto("/settings");
 
     // Upload valid JSON file
@@ -38,40 +40,72 @@ test.describe("Bulk Upload", () => {
 
     // Verify success message
     await expect(page.getByTestId("bulk-upload-success")).toBeVisible();
-    await expect(page.getByTestId("bulk-upload-categories-count")).toContainText("3");
-    await expect(page.getByTestId("bulk-upload-bank-accounts-count")).toContainText("1");
+    await expect(
+      page.getByTestId("bulk-upload-categories-count"),
+    ).toContainText("3");
+    await expect(
+      page.getByTestId("bulk-upload-bank-accounts-count"),
+    ).toContainText("1");
     await expect(page.getByTestId("bulk-upload-tags-count")).toContainText("2");
-    await expect(page.getByTestId("bulk-upload-transactions-count")).toContainText("3");
+    await expect(
+      page.getByTestId("bulk-upload-transactions-count"),
+    ).toContainText("3");
 
     // Verify categories in Settings
     await page.goto("/settings/categories");
     await page.getByTestId("categories-type-spend").click();
-    await expect(page.getByTestId("categories-row").filter({ hasText: "e2e-spend-cat" })).toBeVisible();
+    await expect(
+      page.getByTestId("categories-row").filter({ hasText: "e2e-spend-cat" }),
+    ).toBeVisible();
 
     await page.getByTestId("categories-type-earn").click();
-    await expect(page.getByTestId("categories-row").filter({ hasText: "e2e-earn-cat" })).toBeVisible();
+    await expect(
+      page.getByTestId("categories-row").filter({ hasText: "e2e-earn-cat" }),
+    ).toBeVisible();
 
     await page.getByTestId("categories-type-save").click();
-    await expect(page.getByTestId("categories-row").filter({ hasText: "e2e-save-cat" })).toBeVisible();
+    await expect(
+      page.getByTestId("categories-row").filter({ hasText: "e2e-save-cat" }),
+    ).toBeVisible();
 
     // Verify bank accounts in Settings
     await page.goto("/settings/bank-accounts");
-    await expect(page.getByTestId("bank-accounts-row").filter({ hasText: "e2e-bank-account" })).toBeVisible();
+    await expect(
+      page
+        .getByTestId("bank-accounts-row")
+        .filter({ hasText: "e2e-bank-account" }),
+    ).toBeVisible();
 
     // Verify tags in Settings
     await page.goto("/settings/tags");
-    await expect(page.getByTestId("tags-row").filter({ hasText: "e2e-tag-1" })).toBeVisible();
-    await expect(page.getByTestId("tags-row").filter({ hasText: "e2e-tag-2" })).toBeVisible();
+    await expect(
+      page.getByTestId("tags-row").filter({ hasText: "e2e-tag-1" }),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("tags-row").filter({ hasText: "e2e-tag-2" }),
+    ).toBeVisible();
 
     // Verify transactions on pages
     await page.goto("/spend");
-    await expect(page.getByTestId("spend-row-notes").filter({ hasText: "E2E spend transaction" })).toBeVisible();
+    await expect(
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "E2E spend transaction" }),
+    ).toBeVisible();
 
     await page.goto("/earn");
-    await expect(page.getByTestId("earn-row-notes").filter({ hasText: "E2E earn transaction" })).toBeVisible();
+    await expect(
+      page
+        .getByTestId("earn-row-notes")
+        .filter({ hasText: "E2E earn transaction" }),
+    ).toBeVisible();
 
     await page.goto("/save");
-    await expect(page.getByTestId("save-row-notes").filter({ hasText: "E2E save transaction" })).toBeVisible();
+    await expect(
+      page
+        .getByTestId("save-row-notes")
+        .filter({ hasText: "E2E save transaction" }),
+    ).toBeVisible();
   });
 
   test("user sees error for invalid JSON syntax", async ({ page }) => {
@@ -93,7 +127,10 @@ test.describe("Bulk Upload", () => {
   test("user sees error for invalid category type", async ({ page }) => {
     await page.goto("/settings");
 
-    const filePath = path.join(__dirname, "../fixtures/invalid-category-type.json");
+    const filePath = path.join(
+      __dirname,
+      "../fixtures/invalid-category-type.json",
+    );
     await page.getByTestId("bulk-upload-input").setInputFiles(filePath);
 
     // Preview should appear (JSON is valid, data is not)

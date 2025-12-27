@@ -220,7 +220,10 @@ export function BulkUploadCard() {
         )}
 
         {fileError && (
-          <div className="text-sm text-red-600" data-testid="bulk-upload-file-error">
+          <div
+            className="text-sm text-red-600"
+            data-testid="bulk-upload-file-error"
+          >
             {fileError}
           </div>
         )}
@@ -262,7 +265,9 @@ export function BulkUploadCard() {
             </div>
             <ul className="text-sm text-green-700 space-y-1">
               {result.categories_inserted ? (
-                <li data-testid="bulk-upload-categories-count">• {result.categories_inserted} categories inserted</li>
+                <li data-testid="bulk-upload-categories-count">
+                  • {result.categories_inserted} categories inserted
+                </li>
               ) : null}
               {result.bank_accounts_inserted ? (
                 <li data-testid="bulk-upload-bank-accounts-count">
@@ -270,10 +275,14 @@ export function BulkUploadCard() {
                 </li>
               ) : null}
               {result.tags_inserted ? (
-                <li data-testid="bulk-upload-tags-count">• {result.tags_inserted} tags inserted</li>
+                <li data-testid="bulk-upload-tags-count">
+                  • {result.tags_inserted} tags inserted
+                </li>
               ) : null}
               {result.transactions_inserted ? (
-                <li data-testid="bulk-upload-transactions-count">• {result.transactions_inserted} transactions inserted</li>
+                <li data-testid="bulk-upload-transactions-count">
+                  • {result.transactions_inserted} transactions inserted
+                </li>
               ) : null}
               {!result.categories_inserted &&
                 !result.bank_accounts_inserted &&

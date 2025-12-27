@@ -41,7 +41,10 @@ export default function SettingsPage() {
 
       {/* Success Message */}
       {resetResult && (
-        <div className="bg-green-50 border border-green-200 rounded p-4" data-testid="data-reset-success">
+        <div
+          className="bg-green-50 border border-green-200 rounded p-4"
+          data-testid="data-reset-success"
+        >
           <h3 className="text-green-800 font-medium mb-2">
             ✓ Data Reset Complete
           </h3>

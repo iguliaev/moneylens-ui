@@ -13,6 +13,8 @@ build
 coverage
 playwright-report
 test-results
+
+e2e/fixtures/*.json
 test-results.json
 package.json
 package-lock.json
