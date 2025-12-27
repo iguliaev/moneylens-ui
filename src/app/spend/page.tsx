@@ -574,6 +574,7 @@ export default function SpendPage() {
               onChange={(e) =>
                 setForm({ ...form, bank_account_id: e.target.value })
               }
+              data-testid="spend-form-bank-account"
             >
               <option value="">— Select —</option>
               {bankAccounts.map((b) => (
@@ -590,6 +591,7 @@ export default function SpendPage() {
               value={form.tags}
               onChange={(vals) => setForm({ ...form, tags: vals })}
               placeholder="Select tags"
+              testId="spend-form-tags"
             />
           </div>
           <div>
@@ -784,7 +786,7 @@ export default function SpendPage() {
                         t.bank_account || "—"
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="spend-row-tags">
                       {editingId === t.id ? (
                         <TagsMultiSelect
                           options={allTags.map((tg) => tg.name)}
@@ -800,6 +802,7 @@ export default function SpendPage() {
                           onChange={(vals) =>
                             setEditDraft({ ...editDraft, tags: vals })
                           }
+                          testId="spend-edit-tags"
                         />
                       ) : t.tags && Array.isArray(t.tags) ? (
                         (t.tags as any[])

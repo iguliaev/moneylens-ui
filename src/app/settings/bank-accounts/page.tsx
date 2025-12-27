@@ -108,6 +108,7 @@ export default function BankAccountsSettingsPage() {
             onChange={(e) => setName(e.target.value)}
             className="border px-2 py-1 rounded"
             placeholder="e.g., Checking"
+            data-testid="bank-accounts-create-name"
           />
         </div>
         <div className="flex flex-col">
@@ -117,11 +118,13 @@ export default function BankAccountsSettingsPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="border px-2 py-1 rounded"
             placeholder="Notes..."
+            data-testid="bank-accounts-create-description"
           />
         </div>
         <button
           className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
           disabled={loading}
+          data-testid="bank-accounts-create-submit"
         >
           <Plus size={18} />
           <span>Add</span>
@@ -142,8 +145,12 @@ export default function BankAccountsSettingsPage() {
             {byName.map((row) => {
               const isEditing = editingId === row.id;
               return (
-                <tr key={row.id} className="border-t">
-                  <td className="p-2">
+                <tr
+                  key={row.id}
+                  className="border-t"
+                  data-testid="bank-accounts-row"
+                >
+                  <td className="p-2" data-testid="bank-accounts-row-name">
                     {isEditing ? (
                       <input
                         className="border px-2 py-1 rounded w-full"
@@ -152,6 +159,7 @@ export default function BankAccountsSettingsPage() {
                           setDraft((d) => ({ ...d, name: e.target.value }))
                         }
                         placeholder="Account name"
+                        data-testid="bank-accounts-row-edit-name"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -166,7 +174,10 @@ export default function BankAccountsSettingsPage() {
                       <span>{row.name || "—"}</span>
                     )}
                   </td>
-                  <td className="p-2">
+                  <td
+                    className="p-2"
+                    data-testid="bank-accounts-row-description"
+                  >
                     {isEditing ? (
                       <input
                         className="border px-2 py-1 rounded w-full"
@@ -178,6 +189,7 @@ export default function BankAccountsSettingsPage() {
                           }))
                         }
                         placeholder="Description (optional)"
+                        data-testid="bank-accounts-row-edit-description"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -201,6 +213,7 @@ export default function BankAccountsSettingsPage() {
                           onClick={() => void saveEdit(row.id)}
                           title="Save changes"
                           aria-label="Save changes"
+                          data-testid="bank-accounts-row-save"
                         >
                           <Save size={18} />
                         </button>
@@ -209,6 +222,7 @@ export default function BankAccountsSettingsPage() {
                           onClick={cancelEdit}
                           title="Cancel editing"
                           aria-label="Cancel editing"
+                          data-testid="bank-accounts-row-cancel"
                         >
                           <X size={18} />
                         </button>
@@ -220,6 +234,7 @@ export default function BankAccountsSettingsPage() {
                           onClick={() => startEdit(row)}
                           title="Edit bank account"
                           aria-label="Edit bank account"
+                          data-testid="bank-accounts-row-edit"
                         >
                           <Edit size={18} />
                         </button>
@@ -233,6 +248,7 @@ export default function BankAccountsSettingsPage() {
                           }
                           onClick={() => onDelete(row.id)}
                           aria-label="Delete bank account"
+                          data-testid="bank-accounts-row-delete"
                         >
                           <Trash2 size={18} />
                         </button>

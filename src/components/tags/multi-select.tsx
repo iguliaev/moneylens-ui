@@ -8,16 +8,22 @@ export default function TagsMultiSelect({
   onChange,
   placeholder = "Select tags",
   disabled,
+  testId,
 }: {
   options: string[];
   value: string[];
   onChange: (v: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
+  testId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement | null>(null);
+
+  // Helper to slugify tag names for testids
+  const slugify = (str: string) =>
+    str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -42,12 +48,13 @@ export default function TagsMultiSelect({
   const clear = () => onChange([]);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={ref} data-testid={testId}>
       <button
         type="button"
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         className={`w-full border rounded px-2 py-1 text-left min-h-[2.25rem] ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
+        data-testid={testId ? `${testId}-button` : undefined}
       >
         {value.length === 0 ? (
           <span className="text-gray-500">{placeholder}</span>
@@ -57,6 +64,9 @@ export default function TagsMultiSelect({
               <span
                 key={v}
                 className="inline-flex items-center gap-1 text-xs bg-gray-100 border rounded px-2 py-0.5"
+                data-testid={
+                  testId ? `${testId}-chip-${slugify(v)}` : undefined
+                }
               >
                 {v}
                 <span
@@ -67,6 +77,9 @@ export default function TagsMultiSelect({
                     e.stopPropagation();
                     toggle(v);
                   }}
+                  data-testid={
+                    testId ? `${testId}-remove-${slugify(v)}` : undefined
+                  }
                 >
                   ×
                 </span>
@@ -85,6 +98,7 @@ export default function TagsMultiSelect({
               placeholder="Search tags..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              data-testid={testId ? `${testId}-search` : undefined}
             />
             {value.length > 0 && (
               <button
@@ -106,6 +120,9 @@ export default function TagsMultiSelect({
                   <label
                     key={name}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                    data-testid={
+                      testId ? `${testId}-option-${slugify(name)}` : undefined
+                    }
                   >
                     <input
                       type="checkbox"

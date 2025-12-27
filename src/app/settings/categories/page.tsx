@@ -136,6 +136,7 @@ export default function CategoriesSettingsPage() {
             key={t}
             onClick={() => setType(t)}
             className={`px-3 py-1 rounded border ${t === type ? "bg-black text-white" : ""}`}
+            data-testid={`categories-type-${t}`}
           >
             {t}
           </button>
@@ -150,6 +151,7 @@ export default function CategoriesSettingsPage() {
             onChange={(e) => setName(e.target.value)}
             className="border px-2 py-1 rounded"
             placeholder="e.g., Food"
+            data-testid="categories-create-name"
           />
         </div>
         <div className="flex flex-col">
@@ -159,11 +161,13 @@ export default function CategoriesSettingsPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="border px-2 py-1 rounded"
             placeholder="Notes..."
+            data-testid="categories-create-description"
           />
         </div>
         <button
           className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
           disabled={loading}
+          data-testid="categories-create-submit"
         >
           <Plus size={18} />
           <span>Add</span>
@@ -184,8 +188,12 @@ export default function CategoriesSettingsPage() {
             {byName.map((c) => {
               const isEditing = editingId === c.id;
               return (
-                <tr key={c.id} className="border-t">
-                  <td className="p-2">
+                <tr
+                  key={c.id}
+                  className="border-t"
+                  data-testid="categories-row"
+                >
+                  <td className="p-2" data-testid="categories-row-name">
                     {isEditing ? (
                       <input
                         className="border px-2 py-1 rounded w-full"
@@ -194,6 +202,7 @@ export default function CategoriesSettingsPage() {
                           setDraft((d) => ({ ...d, name: e.target.value }))
                         }
                         placeholder="Category name"
+                        data-testid="categories-row-edit-name"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -208,7 +217,7 @@ export default function CategoriesSettingsPage() {
                       <span>{c.name || "—"}</span>
                     )}
                   </td>
-                  <td className="p-2">
+                  <td className="p-2" data-testid="categories-row-description">
                     {isEditing ? (
                       <input
                         className="border px-2 py-1 rounded w-full"
@@ -220,6 +229,7 @@ export default function CategoriesSettingsPage() {
                           }))
                         }
                         placeholder="Description (optional)"
+                        data-testid="categories-row-edit-description"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -243,6 +253,7 @@ export default function CategoriesSettingsPage() {
                           onClick={() => void saveEdit(c.id)}
                           title="Save changes"
                           aria-label="Save changes"
+                          data-testid="categories-row-save"
                         >
                           <Save size={18} />
                         </button>
@@ -251,6 +262,7 @@ export default function CategoriesSettingsPage() {
                           onClick={cancelEdit}
                           title="Cancel editing"
                           aria-label="Cancel editing"
+                          data-testid="categories-row-cancel"
                         >
                           <X size={18} />
                         </button>
@@ -262,6 +274,7 @@ export default function CategoriesSettingsPage() {
                           onClick={() => startEdit(c)}
                           title="Edit category"
                           aria-label="Edit category"
+                          data-testid="categories-row-edit"
                         >
                           <Edit size={18} />
                         </button>
@@ -275,6 +288,7 @@ export default function CategoriesSettingsPage() {
                           }
                           onClick={() => onDelete(c.id)}
                           aria-label="Delete category"
+                          data-testid="categories-row-delete"
                         >
                           <Trash2 size={18} />
                         </button>

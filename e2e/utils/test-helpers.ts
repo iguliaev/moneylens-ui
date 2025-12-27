@@ -117,21 +117,39 @@ export async function seedReferenceDataForUser(userId: string) {
   if (tagsError) throw new Error(`Failed to seed tags: ${tagsError.message}`);
 }
 
-// Cleanup reference data that was seeded for a given user
+// Cleanup reference data that was seeded or created for a given user
 export async function cleanupReferenceDataForUser(userId: string) {
-  // Best-effort cleanup; ignore errors so tests can still tear down user
+  // Delete in order to avoid foreign key constraint violations:
+  // 1. transaction_tags junction table first
+  // 2. transactions second
+  // 3. Then reference data (tags, bank accounts, categories)
+
   try {
-    await supabaseAdmin.from("categories").delete().eq("user_id", userId);
+    await supabaseAdmin.from("transaction_tags").delete().eq("user_id", userId);
   } catch {
     // noop
   }
+
+  try {
+    await supabaseAdmin.from("transactions").delete().eq("user_id", userId);
+  } catch {
+    // noop
+  }
+
+  try {
+    await supabaseAdmin.from("tags").delete().eq("user_id", userId);
+  } catch {
+    // noop
+  }
+
   try {
     await supabaseAdmin.from("bank_accounts").delete().eq("user_id", userId);
   } catch {
     // noop
   }
+
   try {
-    await supabaseAdmin.from("tags").delete().eq("user_id", userId);
+    await supabaseAdmin.from("categories").delete().eq("user_id", userId);
   } catch {
     // noop
   }
