@@ -120,15 +120,8 @@ export async function seedReferenceDataForUser(userId: string) {
 // Cleanup reference data that was seeded or created for a given user
 export async function cleanupReferenceDataForUser(userId: string) {
   // Delete in order to avoid foreign key constraint violations:
-  // 1. transaction_tags junction table first
-  // 2. transactions second
-  // 3. Then reference data (tags, bank accounts, categories)
-
-  try {
-    await supabaseAdmin.from("transaction_tags").delete().eq("user_id", userId);
-  } catch {
-    // noop
-  }
+  // 1. transactions first (cascades to transaction_tags)
+  // 2. Then reference data (tags, bank accounts, categories)
 
   try {
     await supabaseAdmin.from("transactions").delete().eq("user_id", userId);
