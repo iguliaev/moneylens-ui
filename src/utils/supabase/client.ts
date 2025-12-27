@@ -8,5 +8,5 @@ export const supabaseBrowserClient = createBrowserClient(
     db: {
       schema: "public",
     },
-  }
+  },
 );

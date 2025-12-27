@@ -1,0 +1,18 @@
+# Ignore markdown files
+*.md
+
+# Ignore GitHub Actions workflows
+.github/workflows/*.yml
+.github/workflows/*.yaml
+
+# Standard ignores
+node_modules
+.next
+dist
+build
+coverage
+playwright-report
+test-results
+test-results.json
+package.json
+package-lock.json

@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-  <Suspense>
+        <Suspense>
           <RefineKbarProvider>
             <DevtoolsProvider>
               <Refine

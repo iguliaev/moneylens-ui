@@ -27,7 +27,9 @@ export default async function Login() {
 
       {/* Magic Link Login */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Login with Magic Link</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Login with Magic Link
+        </h2>
         <MagicLinkForm />
       </div>
     </div>

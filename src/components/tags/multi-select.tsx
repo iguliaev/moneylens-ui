@@ -54,7 +54,10 @@ export default function TagsMultiSelect({
         ) : (
           <div className="flex flex-wrap gap-1">
             {value.map((v) => (
-              <span key={v} className="inline-flex items-center gap-1 text-xs bg-gray-100 border rounded px-2 py-0.5">
+              <span
+                key={v}
+                className="inline-flex items-center gap-1 text-xs bg-gray-100 border rounded px-2 py-0.5"
+              >
                 {v}
                 <span
                   role="button"
@@ -84,7 +87,11 @@ export default function TagsMultiSelect({
               onChange={(e) => setQuery(e.target.value)}
             />
             {value.length > 0 && (
-              <button type="button" className="text-xs px-2 py-1 border rounded" onClick={clear}>
+              <button
+                type="button"
+                className="text-xs px-2 py-1 border rounded"
+                onClick={clear}
+              >
                 Clear
               </button>
             )}
@@ -96,7 +103,10 @@ export default function TagsMultiSelect({
               filtered.map((name) => {
                 const checked = value.includes(name);
                 return (
-                  <label key={name} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                  <label
+                    key={name}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                  >
                     <input
                       type="checkbox"
                       checked={checked}
