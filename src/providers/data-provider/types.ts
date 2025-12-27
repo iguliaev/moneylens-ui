@@ -1,4 +1,4 @@
-export type TransactionType = 'earn' | 'spend' | 'save';
+export type TransactionType = "earn" | "spend" | "save";
 
 export interface Transaction {
   id: string;
@@ -90,7 +90,7 @@ export interface TaggedTypeTotalsRow {
 
 export interface ListTransactionsParams {
   from?: string; // YYYY-MM-DD
-  to?: string;   // YYYY-MM-DD
+  to?: string; // YYYY-MM-DD
   type?: TransactionType;
   categoryId?: string;
   bankAccountId?: string;
@@ -100,7 +100,7 @@ export interface ListTransactionsParams {
   limit?: number;
   offset?: number;
   orderBy?: keyof Transaction;
-  orderDir?: 'asc' | 'desc';
+  orderDir?: "asc" | "desc";
 }
 
 export interface BankAccount {

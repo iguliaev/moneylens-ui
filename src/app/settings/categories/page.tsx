@@ -15,7 +15,10 @@ export default function CategoriesSettingsPage() {
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ name: string; description: string }>({ name: "", description: "" });
+  const [draft, setDraft] = useState<{ name: string; description: string }>({
+    name: "",
+    description: "",
+  });
 
   const refresh = async (t = type) => {
     setLoading(true);
@@ -37,7 +40,11 @@ export default function CategoriesSettingsPage() {
     if (!name.trim()) return;
     try {
       setError(null);
-      await DataApi.createCategory({ type, name: name.trim(), description: description.trim() || null });
+      await DataApi.createCategory({
+        type,
+        name: name.trim(),
+        description: description.trim() || null,
+      });
       setName("");
       setDescription("");
       await refresh();
@@ -110,7 +117,7 @@ export default function CategoriesSettingsPage() {
 
   const byName = useMemo(
     () => [...items].sort((a, b) => a.name.localeCompare(b.name)),
-    [items]
+    [items],
   );
 
   return (
@@ -154,7 +161,10 @@ export default function CategoriesSettingsPage() {
             placeholder="Notes..."
           />
         </div>
-        <button className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={loading}>
+        <button
+          className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
+          disabled={loading}
+        >
           <Plus size={18} />
           <span>Add</span>
         </button>
@@ -180,11 +190,18 @@ export default function CategoriesSettingsPage() {
                       <input
                         className="border px-2 py-1 rounded w-full"
                         value={draft.name}
-                        onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+                        onChange={(e) =>
+                          setDraft((d) => ({ ...d, name: e.target.value }))
+                        }
                         placeholder="Category name"
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") { e.preventDefault(); void saveEdit(c.id); }
-                          if (e.key === "Escape") { cancelEdit(); }
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            void saveEdit(c.id);
+                          }
+                          if (e.key === "Escape") {
+                            cancelEdit();
+                          }
                         }}
                       />
                     ) : (
@@ -196,11 +213,21 @@ export default function CategoriesSettingsPage() {
                       <input
                         className="border px-2 py-1 rounded w-full"
                         value={draft.description}
-                        onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            description: e.target.value,
+                          }))
+                        }
                         placeholder="Description (optional)"
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") { e.preventDefault(); void saveEdit(c.id); }
-                          if (e.key === "Escape") { cancelEdit(); }
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            void saveEdit(c.id);
+                          }
+                          if (e.key === "Escape") {
+                            cancelEdit();
+                          }
                         }}
                       />
                     ) : (
@@ -211,22 +238,41 @@ export default function CategoriesSettingsPage() {
                   <td className="p-2 flex gap-2">
                     {isEditing ? (
                       <>
-                        <button className="px-2 py-1 border rounded hover:bg-green-50 disabled:opacity-50" onClick={() => void saveEdit(c.id)} title="Save changes" aria-label="Save changes">
+                        <button
+                          className="px-2 py-1 border rounded hover:bg-green-50 disabled:opacity-50"
+                          onClick={() => void saveEdit(c.id)}
+                          title="Save changes"
+                          aria-label="Save changes"
+                        >
                           <Save size={18} />
                         </button>
-                        <button className="px-2 py-1 border rounded hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
+                        <button
+                          className="px-2 py-1 border rounded hover:bg-gray-100"
+                          onClick={cancelEdit}
+                          title="Cancel editing"
+                          aria-label="Cancel editing"
+                        >
                           <X size={18} />
                         </button>
                       </>
                     ) : (
                       <>
-                        <button className="px-2 py-1 border rounded hover:bg-blue-50" onClick={() => startEdit(c)} title="Edit category" aria-label="Edit category">
+                        <button
+                          className="px-2 py-1 border rounded hover:bg-blue-50"
+                          onClick={() => startEdit(c)}
+                          title="Edit category"
+                          aria-label="Edit category"
+                        >
                           <Edit size={18} />
                         </button>
                         <button
                           className="px-2 py-1 border rounded hover:bg-red-50 disabled:opacity-50"
                           disabled={(c.in_use_count ?? 0) > 0}
-                          title={(c.in_use_count ?? 0) > 0 ? `Cannot delete — used by ${(c.in_use_count ?? 0)} transaction(s)` : "Delete category"}
+                          title={
+                            (c.in_use_count ?? 0) > 0
+                              ? `Cannot delete — used by ${c.in_use_count ?? 0} transaction(s)`
+                              : "Delete category"
+                          }
                           onClick={() => onDelete(c.id)}
                           aria-label="Delete category"
                         >
@@ -239,7 +285,11 @@ export default function CategoriesSettingsPage() {
               );
             })}
             {!loading && byName.length === 0 && (
-              <tr><td className="p-4 text-sm text-gray-500" colSpan={3}>No categories yet for “{type}”. Create one above.</td></tr>
+              <tr>
+                <td className="p-4 text-sm text-gray-500" colSpan={3}>
+                  No categories yet for “{type}”. Create one above.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

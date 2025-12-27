@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { Suspense, useEffect } from 'react'
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Suspense, useEffect } from "react";
 
 function AuthCodeErrorContent() {
-  const searchParams = useSearchParams()
-  const error = searchParams.get('error')
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   // Limit displayed error length to avoid layout issues
-  const MAX_ERROR_LEN = 300
-  const defaultMessage = 'The authentication link is invalid or has expired.'
-  const rawMessage = error ?? null
+  const MAX_ERROR_LEN = 300;
+  const defaultMessage = "The authentication link is invalid or has expired.";
+  const rawMessage = error ?? null;
   const displayError = rawMessage
     ? rawMessage.length > MAX_ERROR_LEN
-      ? rawMessage.slice(0, MAX_ERROR_LEN) + '…'
+      ? rawMessage.slice(0, MAX_ERROR_LEN) + "…"
       : rawMessage
-    : defaultMessage
+    : defaultMessage;
 
   useEffect(() => {
-    const el = document.getElementById('auth-error-heading')
-    if (el) el.focus()
-  }, [])
+    const el = document.getElementById("auth-error-heading");
+    if (el) el.focus();
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -41,10 +41,18 @@ function AuthCodeErrorContent() {
               <path d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </div>
-          <h1 id="auth-error-heading" tabIndex={-1} className="mt-4 text-2xl font-bold text-gray-900">
+          <h1
+            id="auth-error-heading"
+            tabIndex={-1}
+            className="mt-4 text-2xl font-bold text-gray-900"
+          >
             Authentication Error
           </h1>
-          <p role="alert" aria-live="polite" className="mt-2 text-sm text-gray-600">
+          <p
+            role="alert"
+            aria-live="polite"
+            className="mt-2 text-sm text-gray-600"
+          >
             {displayError}
           </p>
         </div>
@@ -65,17 +73,19 @@ function AuthCodeErrorContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function AuthCodeError() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-gray-600">Loading...</div>
+        </div>
+      }
+    >
       <AuthCodeErrorContent />
     </Suspense>
-  )
+  );
 }

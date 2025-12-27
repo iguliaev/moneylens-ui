@@ -36,7 +36,9 @@ export function DataResetModal({
       setConfirmText("");
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : "An error occurred during data reset"
+        err instanceof Error
+          ? err.message
+          : "An error occurred during data reset",
       );
     }
   };
@@ -79,10 +81,16 @@ export function DataResetModal({
             </h2>
 
             {/* Description */}
-            <div id="modal-description" className="space-y-3 text-sm text-gray-700">
+            <div
+              id="modal-description"
+              className="space-y-3 text-sm text-gray-700"
+            >
               <p>
                 This action will{" "}
-                <span className="font-semibold text-red-600">permanently delete</span>:
+                <span className="font-semibold text-red-600">
+                  permanently delete
+                </span>
+                :
               </p>
               <ul className="list-disc list-inside space-y-1 pl-2 text-gray-600">
                 <li>All transactions (earn, spend, save)</li>
@@ -97,7 +105,10 @@ export function DataResetModal({
 
             {/* Confirmation Input */}
             <div className="space-y-2">
-              <label htmlFor="confirm-input" className="block text-sm font-medium">
+              <label
+                htmlFor="confirm-input"
+                className="block text-sm font-medium"
+              >
                 Type{" "}
                 <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-red-600 font-semibold">
                   DELETE

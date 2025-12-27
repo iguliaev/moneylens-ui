@@ -56,7 +56,7 @@ export function BulkUploadCard() {
       setFileError(
         parseErr instanceof Error
           ? parseErr.message
-          : "Failed to parse JSON file. Please ensure it is valid JSON."
+          : "Failed to parse JSON file. Please ensure it is valid JSON.",
       );
       setFile(null);
     }
@@ -64,7 +64,9 @@ export function BulkUploadCard() {
 
   // Helper to clear the native file input element's value
   const clearFileInput = () => {
-    const input = document.getElementById("bulk-upload-input") as HTMLInputElement | null;
+    const input = document.getElementById(
+      "bulk-upload-input",
+    ) as HTMLInputElement | null;
     if (input) input.value = "";
   };
 
@@ -83,24 +85,31 @@ export function BulkUploadCard() {
       const obj = parsed as Record<string, unknown>;
       return {
         categories: Array.isArray(obj.categories) ? obj.categories : undefined,
-        bank_accounts: Array.isArray(obj.bank_accounts) ? obj.bank_accounts : undefined,
+        bank_accounts: Array.isArray(obj.bank_accounts)
+          ? obj.bank_accounts
+          : undefined,
         tags: Array.isArray(obj.tags) ? obj.tags : undefined,
-        transactions: Array.isArray(obj.transactions) ? obj.transactions : undefined,
+        transactions: Array.isArray(obj.transactions)
+          ? obj.transactions
+          : undefined,
       };
     }
 
     throw new Error(
-      "JSON must be an array of transactions or an object with optional sections: categories, bank_accounts, tags, transactions"
+      "JSON must be an array of transactions or an object with optional sections: categories, bank_accounts, tags, transactions",
     );
   };
 
   // Task 3.3: Get upload summary for preview
   const getUploadSummary = (payload: BulkUploadPayload): string => {
     const parts: string[] = [];
-    if (payload.categories?.length) parts.push(`${payload.categories.length} categories`);
-    if (payload.bank_accounts?.length) parts.push(`${payload.bank_accounts.length} bank accounts`);
+    if (payload.categories?.length)
+      parts.push(`${payload.categories.length} categories`);
+    if (payload.bank_accounts?.length)
+      parts.push(`${payload.bank_accounts.length} bank accounts`);
     if (payload.tags?.length) parts.push(`${payload.tags.length} tags`);
-    if (payload.transactions?.length) parts.push(`${payload.transactions.length} transactions`);
+    if (payload.transactions?.length)
+      parts.push(`${payload.transactions.length} transactions`);
     return parts.join(", ") || "No data";
   };
 
@@ -126,7 +135,7 @@ export function BulkUploadCard() {
         setFileError(
           parseErr instanceof Error
             ? parseErr.message
-            : "Failed to parse JSON file. Please ensure it is valid JSON."
+            : "Failed to parse JSON file. Please ensure it is valid JSON.",
         );
         setIsUploading(false);
         return;
@@ -139,7 +148,9 @@ export function BulkUploadCard() {
         !payload.tags?.length &&
         !payload.transactions?.length
       ) {
-        setFileError("JSON must contain at least one of: categories, bank_accounts, tags, or transactions.");
+        setFileError(
+          "JSON must contain at least one of: categories, bank_accounts, tags, or transactions.",
+        );
         setIsUploading(false);
         return;
       }
@@ -175,8 +186,8 @@ export function BulkUploadCard() {
       <h3 className="text-lg font-medium mb-3">Bulk Upload</h3>
 
       <p className="text-sm text-gray-600 mb-4">
-        Upload a JSON file containing categories, bank accounts, tags, and/or transactions. 
-        Max file size: 1MB.
+        Upload a JSON file containing categories, bank accounts, tags, and/or
+        transactions. Max file size: 1MB.
       </p>
 
       <div className="space-y-3">
@@ -194,7 +205,8 @@ export function BulkUploadCard() {
 
         {file && (
           <div className="text-sm text-gray-700">
-            Selected file: <strong>{file.name}</strong> ({Math.round(file.size / 1024)} KB)
+            Selected file: <strong>{file.name}</strong> (
+            {Math.round(file.size / 1024)} KB)
           </div>
         )}
 
@@ -235,13 +247,17 @@ export function BulkUploadCard() {
         {/* Task 3.4: Success message with detailed counts */}
         {result?.success && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-            <div className="text-sm text-green-800 font-medium mb-1">Upload Successful ✓</div>
+            <div className="text-sm text-green-800 font-medium mb-1">
+              Upload Successful ✓
+            </div>
             <ul className="text-sm text-green-700 space-y-1">
               {result.categories_inserted ? (
                 <li>• {result.categories_inserted} categories inserted</li>
               ) : null}
               {result.bank_accounts_inserted ? (
-                <li>• {result.bank_accounts_inserted} bank accounts inserted</li>
+                <li>
+                  • {result.bank_accounts_inserted} bank accounts inserted
+                </li>
               ) : null}
               {result.tags_inserted ? (
                 <li>• {result.tags_inserted} tags inserted</li>
@@ -252,7 +268,9 @@ export function BulkUploadCard() {
               {!result.categories_inserted &&
                 !result.bank_accounts_inserted &&
                 !result.tags_inserted &&
-                !result.transactions_inserted && <li>• No new data inserted (all items may already exist)</li>}
+                !result.transactions_inserted && (
+                  <li>• No new data inserted (all items may already exist)</li>
+                )}
             </ul>
           </div>
         )}
@@ -260,8 +278,12 @@ export function BulkUploadCard() {
         {/* Task 3.4: Error display with detailed messages */}
         {!result?.success && result && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
-            <div className="text-sm text-red-800 font-medium mb-2">Upload Failed</div>
-            <div className="text-sm text-red-700">{result.error || "An unknown error occurred"}</div>
+            <div className="text-sm text-red-800 font-medium mb-2">
+              Upload Failed
+            </div>
+            <div className="text-sm text-red-700">
+              {result.error || "An unknown error occurred"}
+            </div>
           </div>
         )}
 
@@ -281,9 +303,11 @@ export function BulkUploadCard() {
         )}
 
         <details className="mt-4 text-sm text-gray-700">
-          <summary className="cursor-pointer font-medium">Example format</summary>
+          <summary className="cursor-pointer font-medium">
+            Example format
+          </summary>
           <pre className="mt-3 bg-gray-100 p-3 rounded text-xs overflow-auto">
-{`{
+            {`{
   "categories": [
     {
       "type": "spend",
@@ -333,20 +357,26 @@ export function BulkUploadCard() {
           </pre>
           <div className="mt-3 space-y-2 text-gray-600 text-xs">
             <p>
-              <strong>All sections optional:</strong> categories, bank_accounts, tags, transactions
+              <strong>All sections optional:</strong> categories, bank_accounts,
+              tags, transactions
             </p>
             <p>
-              <strong>Category fields:</strong> type (required: earn/spend/save), name (required), description (optional)
+              <strong>Category fields:</strong> type (required:
+              earn/spend/save), name (required), description (optional)
             </p>
             <p>
-              <strong>Bank Account & Tag fields:</strong> name (required), description (optional)
+              <strong>Bank Account & Tag fields:</strong> name (required),
+              description (optional)
             </p>
             <p>
-              <strong>Transaction fields:</strong> date (required: YYYY-MM-DD), type (required: earn/spend/save), 
-              amount (required), category (optional), bank_account (optional), tags (optional array), notes (optional)
+              <strong>Transaction fields:</strong> date (required: YYYY-MM-DD),
+              type (required: earn/spend/save), amount (required), category
+              (optional), bank_account (optional), tags (optional array), notes
+              (optional)
             </p>
             <p className="text-blue-600 font-medium">
-              Duplicates are skipped (idempotent). Upload the same file twice with no errors.
+              Duplicates are skipped (idempotent). Upload the same file twice
+              with no errors.
             </p>
           </div>
         </details>

@@ -28,9 +28,7 @@ export default function SettingsPage() {
         router.push("/dashboard");
       }, 2500);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Failed to reset data"
-      );
+      setError(err instanceof Error ? err.message : "Failed to reset data");
       setIsDeleting(false);
     }
   };
@@ -44,14 +42,18 @@ export default function SettingsPage() {
       {/* Success Message */}
       {resetResult && (
         <div className="bg-green-50 border border-green-200 rounded p-4">
-          <h3 className="text-green-800 font-medium mb-2">✓ Data Reset Complete</h3>
+          <h3 className="text-green-800 font-medium mb-2">
+            ✓ Data Reset Complete
+          </h3>
           <ul className="text-sm text-green-700 space-y-1">
             <li>• {resetResult.transactions_deleted} transactions deleted</li>
             <li>• {resetResult.categories_deleted} categories deleted</li>
             <li>• {resetResult.tags_deleted} tags deleted</li>
             <li>• {resetResult.bank_accounts_deleted} bank accounts deleted</li>
           </ul>
-          <p className="text-sm text-green-600 mt-2">Redirecting to dashboard...</p>
+          <p className="text-sm text-green-600 mt-2">
+            Redirecting to dashboard...
+          </p>
         </div>
       )}
 
@@ -66,17 +68,26 @@ export default function SettingsPage() {
         <h2 className="text-lg font-medium mb-2">Manage</h2>
         <ul className="list-disc list-inside space-y-1">
           <li>
-            <Link href="/settings/categories" className="text-blue-600 hover:underline">
+            <Link
+              href="/settings/categories"
+              className="text-blue-600 hover:underline"
+            >
               Categories
             </Link>
           </li>
           <li>
-            <Link href="/settings/tags" className="text-blue-600 hover:underline">
+            <Link
+              href="/settings/tags"
+              className="text-blue-600 hover:underline"
+            >
               Tags
             </Link>
           </li>
           <li>
-            <Link href="/settings/bank-accounts" className="text-blue-600 hover:underline">
+            <Link
+              href="/settings/bank-accounts"
+              className="text-blue-600 hover:underline"
+            >
               Bank Accounts
             </Link>
           </li>

@@ -6,7 +6,7 @@ export const AuthPage = (props: AuthPageProps) => {
   return (
     <AuthPageBase
       {...props}
-  renderContent={(content) => <div>{content}</div>}
+      renderContent={(content) => <div>{content}</div>}
     />
   );
 };

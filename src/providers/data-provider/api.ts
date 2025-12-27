@@ -24,7 +24,11 @@ export class RpcError extends Error {
   details: BulkUploadError[];
   originalError: unknown;
 
-  constructor(message: string, details: BulkUploadError[] = [], originalError: unknown = null) {
+  constructor(
+    message: string,
+    details: BulkUploadError[] = [],
+    originalError: unknown = null,
+  ) {
     super(message);
     this.name = "RpcError";
     this.details = details;
@@ -34,10 +38,10 @@ export class RpcError extends Error {
 
 // Internal source enum for transaction queries
 type TransactionSource =
-  | 'transactions'
-  | 'transactions_spend'
-  | 'transactions_earn'
-  | 'transactions_save';
+  | "transactions"
+  | "transactions_spend"
+  | "transactions_earn"
+  | "transactions_save";
 
 // Helper to order by when needed
 const order = <T>(query: any, column: string, ascending: boolean) =>
@@ -59,13 +63,15 @@ export const DataApi = {
     // Read from categories_with_usage to get in_use_count
     let q = db
       .from("categories_with_usage")
-      .select("id,user_id,type,name,description,created_at,updated_at,in_use_count")
+      .select(
+        "id,user_id,type,name,description,created_at,updated_at,in_use_count",
+      )
       .eq("user_id", userId)
       .order("name", { ascending: true });
     if (type) q = q.eq("type", type);
     const { data, error } = await q;
     if (error) throw error;
-    return (data as any[]) as Category[];
+    return data as any[] as Category[];
   },
 
   // Bank Accounts CRUD
@@ -78,17 +84,30 @@ export const DataApi = {
       .eq("user_id", userId)
       .order("name", { ascending: true });
     if (error) throw error;
-    return (data as any[]) as BankAccount[];
+    return data as any[] as BankAccount[];
   },
 
-  async createBankAccount(input: { name: string; description?: string | null }): Promise<BankAccount> {
-    const payload = { name: input.name, description: input.description ?? null };
-    const { data, error } = await db.from("bank_accounts").insert(payload).select("*").single();
+  async createBankAccount(input: {
+    name: string;
+    description?: string | null;
+  }): Promise<BankAccount> {
+    const payload = {
+      name: input.name,
+      description: input.description ?? null,
+    };
+    const { data, error } = await db
+      .from("bank_accounts")
+      .insert(payload)
+      .select("*")
+      .single();
     if (error) throw error;
     return data as BankAccount;
   },
 
-  async updateBankAccount(id: string, input: Partial<{ name: string; description: string | null }>): Promise<BankAccount> {
+  async updateBankAccount(
+    id: string,
+    input: Partial<{ name: string; description: string | null }>,
+  ): Promise<BankAccount> {
     const { data, error } = await db
       .from("bank_accounts")
       .update({ ...input })
@@ -100,21 +119,36 @@ export const DataApi = {
   },
 
   async deleteBankAccount(id: string): Promise<void> {
-    const { data, error } = await db.rpc("delete_bank_account_safe", { p_bank_account_id: id });
+    const { data, error } = await db.rpc("delete_bank_account_safe", {
+      p_bank_account_id: id,
+    });
     if (error) throw error;
-    const row = (Array.isArray(data) ? data[0] : data) as { ok: boolean; in_use_count: number } | null;
+    const row = (Array.isArray(data) ? data[0] : data) as {
+      ok: boolean;
+      in_use_count: number;
+    } | null;
     if (row && row.ok === false) {
-      throw new Error(`Bank account is in use by ${row.in_use_count} transaction(s)`);
+      throw new Error(
+        `Bank account is in use by ${row.in_use_count} transaction(s)`,
+      );
     }
   },
 
-  async createCategory(input: { type: TransactionType; name: string; description?: string | null }): Promise<Category> {
+  async createCategory(input: {
+    type: TransactionType;
+    name: string;
+    description?: string | null;
+  }): Promise<Category> {
     const payload = {
       type: input.type,
       name: input.name,
       description: input.description ?? null,
     };
-    const { data, error } = await db.from("categories").insert(payload).select("*").single();
+    const { data, error } = await db
+      .from("categories")
+      .insert(payload)
+      .select("*")
+      .single();
     if (error) throw error;
     return data as Category;
   },
@@ -129,17 +163,30 @@ export const DataApi = {
       .eq("user_id", userId)
       .order("name", { ascending: true });
     if (error) throw error;
-    return (data as any[]) as Tag[];
+    return data as any[] as Tag[];
   },
 
-  async createTag(input: { name: string; description?: string | null }): Promise<Tag> {
-    const payload = { name: input.name, description: input.description ?? null };
-    const { data, error } = await db.from("tags").insert(payload).select("*").single();
+  async createTag(input: {
+    name: string;
+    description?: string | null;
+  }): Promise<Tag> {
+    const payload = {
+      name: input.name,
+      description: input.description ?? null,
+    };
+    const { data, error } = await db
+      .from("tags")
+      .insert(payload)
+      .select("*")
+      .single();
     if (error) throw error;
     return data as Tag;
   },
 
-  async updateTag(id: string, input: Partial<{ name: string; description: string | null }>): Promise<Tag> {
+  async updateTag(
+    id: string,
+    input: Partial<{ name: string; description: string | null }>,
+  ): Promise<Tag> {
     const { data, error } = await db
       .from("tags")
       .update({ ...input })
@@ -153,13 +200,19 @@ export const DataApi = {
   async deleteTag(id: string): Promise<void> {
     const { data, error } = await db.rpc("delete_tag_safe", { p_tag_id: id });
     if (error) throw error;
-    const row = (Array.isArray(data) ? data[0] : data) as { ok: boolean; in_use_count: number } | null;
+    const row = (Array.isArray(data) ? data[0] : data) as {
+      ok: boolean;
+      in_use_count: number;
+    } | null;
     if (row && row.ok === false) {
       throw new Error(`Tag is in use by ${row.in_use_count} transaction(s)`);
     }
   },
 
-  async updateCategory(id: string, input: Partial<{ name: string; description: string | null }>): Promise<Category> {
+  async updateCategory(
+    id: string,
+    input: Partial<{ name: string; description: string | null }>,
+  ): Promise<Category> {
     const { data, error } = await db
       .from("categories")
       .update({ ...input })
@@ -172,11 +225,18 @@ export const DataApi = {
 
   async deleteCategory(id: string): Promise<void> {
     // Prefer RPC to avoid raw FK violations and get an actionable result
-    const { data, error } = await db.rpc("delete_category_safe", { p_category_id: id });
+    const { data, error } = await db.rpc("delete_category_safe", {
+      p_category_id: id,
+    });
     if (error) throw error;
-    const row = (Array.isArray(data) ? data[0] : data) as { ok: boolean; in_use_count: number } | null;
+    const row = (Array.isArray(data) ? data[0] : data) as {
+      ok: boolean;
+      in_use_count: number;
+    } | null;
     if (row && row.ok === false) {
-      throw new Error(`Category is in use by ${row.in_use_count} transaction(s)`);
+      throw new Error(
+        `Category is in use by ${row.in_use_count} transaction(s)`,
+      );
     }
   },
 
@@ -187,7 +247,7 @@ export const DataApi = {
    */
   async _listTransactionsFromSource(
     source: TransactionSource,
-    params: ListTransactionsParams = {}
+    params: ListTransactionsParams = {},
   ): Promise<Transaction[]> {
     const userId = await requireUserId();
 
@@ -202,7 +262,7 @@ export const DataApi = {
 
     // Type filter only applies when querying base table. Views are already
     // pre-filtered by type.
-    if (source === 'transactions' && params.type) q = q.eq("type", params.type);
+    if (source === "transactions" && params.type) q = q.eq("type", params.type);
 
     // Filter by authoritative FK only
     if (params.categoryId) q = q.eq("category_id", params.categoryId);
@@ -212,16 +272,23 @@ export const DataApi = {
     if (params.tagsAny?.length) q = q.overlaps("tags", params.tagsAny);
     if (params.tagsAll?.length) q = q.contains("tags", params.tagsAll);
 
-    if (params.orderBy) q = order(q, params.orderBy, params.orderDir !== "desc");
+    if (params.orderBy)
+      q = order(q, params.orderBy, params.orderDir !== "desc");
     if (params.limit) q = q.limit(params.limit);
-    if (params.offset) q = q.range(params.offset, (params.offset ?? 0) + (params.limit ?? 20) - 1);
+    if (params.offset)
+      q = q.range(
+        params.offset,
+        (params.offset ?? 0) + (params.limit ?? 20) - 1,
+      );
 
     const { data, error } = await q;
     if (error) throw error;
 
     // Transform nested transaction_tags into Tag[] on each transaction
     const transformed = (data as any[]).map((t) => {
-      const tags = (t.transaction_tags || []).map((tt: any) => tt.tag).filter(Boolean);
+      const tags = (t.transaction_tags || [])
+        .map((tt: any) => tt.tag)
+        .filter(Boolean);
       return {
         ...t,
         tags,
@@ -235,12 +302,14 @@ export const DataApi = {
    * `type` parameter is provided (common case for type pages), otherwise
    * falls back to the base `transactions` table for cross-type queries.
    */
-  async listTransactions(params: ListTransactionsParams = {}): Promise<Transaction[]> {
-    let source: TransactionSource = 'transactions';
+  async listTransactions(
+    params: ListTransactionsParams = {},
+  ): Promise<Transaction[]> {
+    let source: TransactionSource = "transactions";
 
-    if (params.type === 'spend') source = 'transactions_spend';
-    else if (params.type === 'earn') source = 'transactions_earn';
-    else if (params.type === 'save') source = 'transactions_save';
+    if (params.type === "spend") source = "transactions_spend";
+    else if (params.type === "earn") source = "transactions_earn";
+    else if (params.type === "save") source = "transactions_save";
 
     return this._listTransactionsFromSource(source, params);
   },
@@ -249,7 +318,7 @@ export const DataApi = {
     date: string; // YYYY-MM-DD
     category?: string | null;
     categoryId?: string | null;
-  bank_account_id?: string | null;
+    bank_account_id?: string | null;
     amount: number;
     tags?: string[] | null;
     notes?: string | null;
@@ -263,14 +332,18 @@ export const DataApi = {
       type: "spend" as TransactionType,
       category: input.category ?? null,
       category_id: input.categoryId ?? null,
-  bank_account_id: input.bank_account_id ?? null,
+      bank_account_id: input.bank_account_id ?? null,
       amount: input.amount,
       tags: input.tags ?? null,
       notes: input.notes ?? null,
       bank_account: input.bank_account ?? null,
     };
 
-    const { data, error } = await db.from("transactions").insert(payload).select("*").single();
+    const { data, error } = await db
+      .from("transactions")
+      .insert(payload)
+      .select("*")
+      .single();
     if (error) throw error;
     const tx = data as Transaction;
 
@@ -279,14 +352,24 @@ export const DataApi = {
       // Determine if tags are objects with id or plain strings
       const first = input.tags[0] as any;
       if (typeof first === "object" && first.id) {
-        const associations = (input.tags as any[]).map((tg: any) => ({ transaction_id: tx.id, tag_id: tg.id }));
+        const associations = (input.tags as any[]).map((tg: any) => ({
+          transaction_id: tx.id,
+          tag_id: tg.id,
+        }));
         await db.from("transaction_tags").insert(associations).select();
       } else {
         // strings - map names to ids for this user
         const names = (input.tags as string[]).filter(Boolean);
-        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
+        const { data: tagRows } = await db
+          .from("tags")
+          .select("id,name")
+          .in("name", names)
+          .eq("user_id", userId);
         if (tagRows && tagRows.length) {
-          const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
+          const associations = tagRows.map((r: any) => ({
+            transaction_id: tx.id,
+            tag_id: r.id,
+          }));
           await db.from("transaction_tags").insert(associations).select();
         }
       }
@@ -299,7 +382,7 @@ export const DataApi = {
     date: string; // YYYY-MM-DD
     category?: string | null;
     categoryId?: string | null;
-  bank_account_id?: string | null;
+    bank_account_id?: string | null;
     amount: number;
     tags?: string[] | null;
     notes?: string | null;
@@ -313,27 +396,41 @@ export const DataApi = {
       type: "earn" as TransactionType,
       category: input.category ?? null,
       category_id: input.categoryId ?? null,
-  bank_account_id: input.bank_account_id ?? null,
+      bank_account_id: input.bank_account_id ?? null,
       amount: input.amount,
       tags: input.tags ?? null,
       notes: input.notes ?? null,
       bank_account: input.bank_account ?? null,
     };
 
-    const { data, error } = await db.from("transactions").insert(payload).select("*").single();
+    const { data, error } = await db
+      .from("transactions")
+      .insert(payload)
+      .select("*")
+      .single();
     if (error) throw error;
     const tx = data as Transaction;
 
     if (input.tags && input.tags.length) {
       const first = input.tags[0] as any;
       if (typeof first === "object" && first.id) {
-        const associations = (input.tags as any[]).map((tg: any) => ({ transaction_id: tx.id, tag_id: tg.id }));
+        const associations = (input.tags as any[]).map((tg: any) => ({
+          transaction_id: tx.id,
+          tag_id: tg.id,
+        }));
         await db.from("transaction_tags").insert(associations).select();
       } else {
         const names = (input.tags as string[]).filter(Boolean);
-        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
+        const { data: tagRows } = await db
+          .from("tags")
+          .select("id,name")
+          .in("name", names)
+          .eq("user_id", userId);
         if (tagRows && tagRows.length) {
-          const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
+          const associations = tagRows.map((r: any) => ({
+            transaction_id: tx.id,
+            tag_id: r.id,
+          }));
           await db.from("transaction_tags").insert(associations).select();
         }
       }
@@ -346,7 +443,7 @@ export const DataApi = {
     date: string; // YYYY-MM-DD
     category?: string | null;
     categoryId?: string | null;
-  bank_account_id?: string | null;
+    bank_account_id?: string | null;
     amount: number;
     tags?: string[] | null;
     notes?: string | null;
@@ -360,27 +457,41 @@ export const DataApi = {
       type: "save" as TransactionType,
       category: input.category ?? null,
       category_id: input.categoryId ?? null,
-  bank_account_id: input.bank_account_id ?? null,
+      bank_account_id: input.bank_account_id ?? null,
       amount: input.amount,
       tags: input.tags ?? null,
       notes: input.notes ?? null,
       bank_account: input.bank_account ?? null,
     };
 
-    const { data, error } = await db.from("transactions").insert(payload).select("*").single();
+    const { data, error } = await db
+      .from("transactions")
+      .insert(payload)
+      .select("*")
+      .single();
     if (error) throw error;
     const tx = data as Transaction;
 
     if (input.tags && input.tags.length) {
       const first = input.tags[0] as any;
       if (typeof first === "object" && first.id) {
-        const associations = (input.tags as any[]).map((tg: any) => ({ transaction_id: tx.id, tag_id: tg.id }));
+        const associations = (input.tags as any[]).map((tg: any) => ({
+          transaction_id: tx.id,
+          tag_id: tg.id,
+        }));
         await db.from("transaction_tags").insert(associations).select();
       } else {
         const names = (input.tags as string[]).filter(Boolean);
-        const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
+        const { data: tagRows } = await db
+          .from("tags")
+          .select("id,name")
+          .in("name", names)
+          .eq("user_id", userId);
         if (tagRows && tagRows.length) {
-          const associations = tagRows.map((r: any) => ({ transaction_id: tx.id, tag_id: r.id }));
+          const associations = tagRows.map((r: any) => ({
+            transaction_id: tx.id,
+            tag_id: r.id,
+          }));
           await db.from("transaction_tags").insert(associations).select();
         }
       }
@@ -389,7 +500,23 @@ export const DataApi = {
     return tx as Transaction;
   },
 
-  async updateTransaction(id: string, changes: Partial<Pick<Transaction, "date" | "category" | "category_id" | "bank_account_id" | "amount" | "tags" | "notes" | "bank_account" | "type">>): Promise<Transaction> {
+  async updateTransaction(
+    id: string,
+    changes: Partial<
+      Pick<
+        Transaction,
+        | "date"
+        | "category"
+        | "category_id"
+        | "bank_account_id"
+        | "amount"
+        | "tags"
+        | "notes"
+        | "bank_account"
+        | "type"
+      >
+    >,
+  ): Promise<Transaction> {
     const userId = await requireUserId();
     // Handle tags separately if provided
     const tagsInput = (changes as any).tags ?? undefined;
@@ -414,13 +541,23 @@ export const DataApi = {
       if (Array.isArray(tagsInput) && tagsInput.length > 0) {
         const first = tagsInput[0] as any;
         if (typeof first === "object" && first.id) {
-          const associations = (tagsInput as any[]).map((tg: any) => ({ transaction_id: id, tag_id: tg.id }));
+          const associations = (tagsInput as any[]).map((tg: any) => ({
+            transaction_id: id,
+            tag_id: tg.id,
+          }));
           await db.from("transaction_tags").insert(associations).select();
         } else {
           const names = (tagsInput as string[]).filter(Boolean);
-          const { data: tagRows } = await db.from("tags").select("id,name").in("name", names).eq("user_id", userId);
+          const { data: tagRows } = await db
+            .from("tags")
+            .select("id,name")
+            .in("name", names)
+            .eq("user_id", userId);
           if (tagRows && tagRows.length) {
-            const associations = tagRows.map((r: any) => ({ transaction_id: id, tag_id: r.id }));
+            const associations = tagRows.map((r: any) => ({
+              transaction_id: id,
+              tag_id: r.id,
+            }));
             await db.from("transaction_tags").insert(associations).select();
           }
         }
@@ -448,7 +585,9 @@ export const DataApi = {
     if (error) throw error;
   },
 
-  async sumTransactionsAmount(params: ListTransactionsParams = {}): Promise<number> {
+  async sumTransactionsAmount(
+    params: ListTransactionsParams = {},
+  ): Promise<number> {
     const { data, error } = await db.rpc("sum_transactions_amount", {
       p_from: params.from ?? null,
       p_to: params.to ?? null,
@@ -484,7 +623,9 @@ export const DataApi = {
   },
 
   // Legacy bulk upload RPC - Kept for backward compatibility
-  async bulkUploadTransactions(payload: BulkUploadPayload): Promise<BulkUploadResult> {
+  async bulkUploadTransactions(
+    payload: BulkUploadPayload,
+  ): Promise<BulkUploadResult> {
     const { data, error } = await db.rpc("bulk_insert_transactions", {
       p_transactions: payload.transactions,
     });
@@ -532,27 +673,43 @@ export const DataApi = {
     return data as YearlyTotalsRow[];
   },
 
-  async monthlyCategoryTotals(month?: string): Promise<MonthlyCategoryTotalsRow[]> {
+  async monthlyCategoryTotals(
+    month?: string,
+  ): Promise<MonthlyCategoryTotalsRow[]> {
     const userId = await requireUserId();
-    let q = db.from("view_monthly_category_totals").select("*").eq("user_id", userId);
+    let q = db
+      .from("view_monthly_category_totals")
+      .select("*")
+      .eq("user_id", userId);
     if (month) q = q.eq("month", month);
     const { data, error } = await q;
     if (error) throw error;
     return data as MonthlyCategoryTotalsRow[];
   },
 
-  async yearlyCategoryTotals(year?: string): Promise<YearlyCategoryTotalsRow[]> {
+  async yearlyCategoryTotals(
+    year?: string,
+  ): Promise<YearlyCategoryTotalsRow[]> {
     const userId = await requireUserId();
-    let q = db.from("view_yearly_category_totals").select("*").eq("user_id", userId);
+    let q = db
+      .from("view_yearly_category_totals")
+      .select("*")
+      .eq("user_id", userId);
     if (year) q = q.eq("year", year);
     const { data, error } = await q;
     if (error) throw error;
     return data as YearlyCategoryTotalsRow[];
   },
 
-  async monthlyTaggedTypeTotals(month?: string, tagsAny?: string[]): Promise<MonthlyTaggedTypeTotalsRow[]> {
+  async monthlyTaggedTypeTotals(
+    month?: string,
+    tagsAny?: string[],
+  ): Promise<MonthlyTaggedTypeTotalsRow[]> {
     const userId = await requireUserId();
-    let q = db.from("view_monthly_tagged_type_totals").select("*").eq("user_id", userId);
+    let q = db
+      .from("view_monthly_tagged_type_totals")
+      .select("*")
+      .eq("user_id", userId);
     if (month) q = q.eq("month", month);
     if (tagsAny?.length) q = q.overlaps("tags", tagsAny);
     const { data, error } = await q;
@@ -560,9 +717,15 @@ export const DataApi = {
     return data as MonthlyTaggedTypeTotalsRow[];
   },
 
-  async yearlyTaggedTypeTotals(year?: string, tagsAny?: string[]): Promise<YearlyTaggedTypeTotalsRow[]> {
+  async yearlyTaggedTypeTotals(
+    year?: string,
+    tagsAny?: string[],
+  ): Promise<YearlyTaggedTypeTotalsRow[]> {
     const userId = await requireUserId();
-    let q = db.from("view_yearly_tagged_type_totals").select("*").eq("user_id", userId);
+    let q = db
+      .from("view_yearly_tagged_type_totals")
+      .select("*")
+      .eq("user_id", userId);
     if (year) q = q.eq("year", year);
     if (tagsAny?.length) q = q.overlaps("tags", tagsAny);
     const { data, error } = await q;
@@ -572,7 +735,10 @@ export const DataApi = {
 
   async taggedTypeTotals(tagsAny?: string[]): Promise<TaggedTypeTotalsRow[]> {
     const userId = await requireUserId();
-    let q = db.from("view_tagged_type_totals").select("*").eq("user_id", userId);
+    let q = db
+      .from("view_tagged_type_totals")
+      .select("*")
+      .eq("user_id", userId);
     if (tagsAny?.length) q = q.overlaps("tags", tagsAny);
     const { data, error } = await q;
     if (error) throw error;

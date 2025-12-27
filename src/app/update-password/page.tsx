@@ -7,7 +7,7 @@ export default async function UpdatePassword() {
 
   // User must be authenticated to update password
   if (!data.authenticated) {
-    redirect('/login');
+    redirect("/login");
   }
 
   return <AuthPage type="updatePassword" />;

@@ -9,7 +9,10 @@ import type {
 } from "@providers/data-provider/types";
 
 function fmtCurrency(n: number) {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency: "GBP" }).format(n);
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "GBP",
+  }).format(n);
 }
 
 function startOfMonthISO(d = new Date()) {
@@ -34,7 +37,14 @@ export default function DashboardPage() {
   const [catTotals, setCatTotals] = useState<MonthlyCategoryTotalsRow[]>([]);
   const [tagTotals, setTagTotals] = useState<MonthlyTaggedTypeTotalsRow[]>([]);
 
-  const monthLabel = useMemo(() => new Date(month).toLocaleDateString(undefined, { month: "long", year: "numeric" }), [month]);
+  const monthLabel = useMemo(
+    () =>
+      new Date(month).toLocaleDateString(undefined, {
+        month: "long",
+        year: "numeric",
+      }),
+    [month],
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -73,24 +83,54 @@ export default function DashboardPage() {
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard — {monthLabel}</h1>
         <div className="flex items-center gap-2">
-          <button data-testid="prev-month" className="px-3 py-1 rounded border" onClick={() => setMonth((m) => addMonths(m, -1))}>&larr; Prev</button>
+          <button
+            data-testid="prev-month"
+            className="px-3 py-1 rounded border"
+            onClick={() => setMonth((m) => addMonths(m, -1))}
+          >
+            &larr; Prev
+          </button>
           <input
             type="month"
             className="border rounded px-2 py-1"
             value={month.slice(0, 7)}
             onChange={(e) => setMonth(`${e.target.value}-01`)}
           />
-          <button data-testid="this-month" className="px-3 py-1 rounded border" onClick={() => setMonth(startOfMonthISO())}>This Month</button>
-          <button data-testid="next-month" className="px-3 py-1 rounded border" onClick={() => setMonth((m) => addMonths(m, 1))}>Next &rarr;</button>
+          <button
+            data-testid="this-month"
+            className="px-3 py-1 rounded border"
+            onClick={() => setMonth(startOfMonthISO())}
+          >
+            This Month
+          </button>
+          <button
+            data-testid="next-month"
+            className="px-3 py-1 rounded border"
+            onClick={() => setMonth((m) => addMonths(m, 1))}
+          >
+            Next &rarr;
+          </button>
         </div>
       </header>
 
       {error && <div className="text-red-600">{error}</div>}
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Spent" value={fmtCurrency(spend)} className="bg-red-50 border-red-200" />
-        <StatCard title="Earned" value={fmtCurrency(earn)} className="bg-green-50 border-green-200" />
-        <StatCard title="Saved" value={fmtCurrency(save)} className="bg-blue-50 border-blue-200" />
+        <StatCard
+          title="Spent"
+          value={fmtCurrency(spend)}
+          className="bg-red-50 border-red-200"
+        />
+        <StatCard
+          title="Earned"
+          value={fmtCurrency(earn)}
+          className="bg-green-50 border-green-200"
+        />
+        <StatCard
+          title="Saved"
+          value={fmtCurrency(save)}
+          className="bg-blue-50 border-blue-200"
+        />
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -110,9 +150,13 @@ export default function DashboardPage() {
                 .slice(0, 10)
                 .map((row, i) => (
                   <tr key={i} className="border-t">
-                    <td className="py-2">{row.category || "(uncategorized)"}</td>
+                    <td className="py-2">
+                      {row.category || "(uncategorized)"}
+                    </td>
                     <td className="py-2 capitalize">{row.type}</td>
-                    <td className="py-2 text-right">{fmtCurrency(row.total)}</td>
+                    <td className="py-2 text-right">
+                      {fmtCurrency(row.total)}
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -135,9 +179,13 @@ export default function DashboardPage() {
                 .slice(0, 10)
                 .map((row, i) => (
                   <tr key={i} className="border-t">
-                    <td className="py-2">{row.tags?.join(", ") || "(no tags)"}</td>
+                    <td className="py-2">
+                      {row.tags?.join(", ") || "(no tags)"}
+                    </td>
                     <td className="py-2 capitalize">{row.type}</td>
-                    <td className="py-2 text-right">{fmtCurrency(row.total)}</td>
+                    <td className="py-2 text-right">
+                      {fmtCurrency(row.total)}
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -150,7 +198,15 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ title, value, className = "" }: { title: string; value: string; className?: string }) {
+function StatCard({
+  title,
+  value,
+  className = "",
+}: {
+  title: string;
+  value: string;
+  className?: string;
+}) {
   return (
     <div className={`border rounded p-4 ${className}`}>
       <div className="text-sm text-gray-500">{title}</div>
@@ -159,7 +215,10 @@ function StatCard({ title, value, className = "" }: { title: string; value: stri
   );
 }
 
-function Panel({ title, children }: React.PropsWithChildren<{ title: string }>) {
+function Panel({
+  title,
+  children,
+}: React.PropsWithChildren<{ title: string }>) {
   return (
     <div className="border rounded p-4">
       <div className="text-sm text-gray-500 mb-2">{title}</div>
