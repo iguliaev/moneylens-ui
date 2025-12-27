@@ -561,6 +561,7 @@ export default function EarnPage() {
               onChange={(e) =>
                 setForm({ ...form, bank_account_id: e.target.value })
               }
+              data-testid="earn-form-bank-account"
             >
               <option value="">— Select —</option>
               {bankAccounts.map((b) => (
@@ -577,6 +578,7 @@ export default function EarnPage() {
               value={form.tags}
               onChange={(vals) => setForm({ ...form, tags: vals })}
               placeholder="Select tags"
+              testId="earn-form-tags"
             />
           </div>
           <div>
@@ -744,7 +746,7 @@ export default function EarnPage() {
                         fmtCurrency(t.amount)
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="earn-row-bank-account">
                       {editingId === t.id ? (
                         <select
                           className="border rounded px-2 py-1"
@@ -771,7 +773,7 @@ export default function EarnPage() {
                         t.bank_account || "—"
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="earn-row-tags">
                       {editingId === t.id ? (
                         <TagsMultiSelect
                           options={allTags.map((tg) => tg.name)}
@@ -787,6 +789,7 @@ export default function EarnPage() {
                           onChange={(vals) =>
                             setEditDraft({ ...editDraft, tags: vals })
                           }
+                          testId="earn-edit-tags"
                         />
                       ) : t.tags && Array.isArray(t.tags) ? (
                         (t.tags as any[])

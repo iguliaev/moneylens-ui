@@ -1,6 +1,8 @@
 import { Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { expect } from "@playwright/test";
 import type { Database, TablesInsert } from "./backend-types";
+import { slugify } from "../../src/utils/slugify";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -22,7 +24,10 @@ export async function createTestUser() {
     email_confirm: true,
   });
 
-  if (error) throw error;
+  if (error) {
+    console.error("Failed to create test user:", error.message, error);
+    throw error;
+  }
   // `data.user` structure comes from supabase-js response shape
   return { email, password, userId: (data as any).user.id };
 }
@@ -117,21 +122,32 @@ export async function seedReferenceDataForUser(userId: string) {
   if (tagsError) throw new Error(`Failed to seed tags: ${tagsError.message}`);
 }
 
-// Cleanup reference data that was seeded for a given user
+// Cleanup reference data that was seeded or created for a given user
 export async function cleanupReferenceDataForUser(userId: string) {
-  // Best-effort cleanup; ignore errors so tests can still tear down user
+  // Delete in order to avoid foreign key constraint violations:
+  // 1. transactions first (cascades to transaction_tags)
+  // 2. Then reference data (tags, bank accounts, categories)
+
   try {
-    await supabaseAdmin.from("categories").delete().eq("user_id", userId);
+    await supabaseAdmin.from("transactions").delete().eq("user_id", userId);
   } catch {
     // noop
   }
+
+  try {
+    await supabaseAdmin.from("tags").delete().eq("user_id", userId);
+  } catch {
+    // noop
+  }
+
   try {
     await supabaseAdmin.from("bank_accounts").delete().eq("user_id", userId);
   } catch {
     // noop
   }
+
   try {
-    await supabaseAdmin.from("tags").delete().eq("user_id", userId);
+    await supabaseAdmin.from("categories").delete().eq("user_id", userId);
   } catch {
     // noop
   }
@@ -144,4 +160,63 @@ export async function cleanupTransactionsForUser(userId: string) {
   } catch {
     // noop
   }
+}
+
+// Helper to create a bank account via Settings UI
+export async function createBankAccount(page: Page, name: string) {
+  await page.goto("/settings/bank-accounts");
+  await page.getByTestId("bank-accounts-create-name").fill(name);
+  await page.getByTestId("bank-accounts-create-description").fill("e2e");
+  await page.getByTestId("bank-accounts-create-submit").click();
+  await expect(
+    page.getByTestId("bank-accounts-row").filter({ hasText: name }),
+  ).toBeVisible();
+}
+
+// Helper to create a tag via Settings UI
+export async function createTag(page: Page, name: string) {
+  await page.goto("/settings/tags");
+  await page.getByTestId("tags-create-name").fill(name);
+  await page.getByTestId("tags-create-description").fill("e2e");
+  await page.getByTestId("tags-create-submit").click();
+  await expect(
+    page.getByTestId("tags-row").filter({ hasText: name }),
+  ).toBeVisible();
+}
+
+// Helper to create a category for a given type via Settings UI
+export async function createCategoryForType(
+  page: Page,
+  type: string,
+  name: string,
+) {
+  await page.goto("/settings/categories");
+  await page.getByTestId(`categories-type-${type}`).click();
+  await page.getByTestId("categories-create-name").fill(name);
+  await page.getByTestId("categories-create-description").fill("e2e");
+  await page.getByTestId("categories-create-submit").click();
+  await expect(
+    page.getByTestId("categories-row").filter({ hasText: name }),
+  ).toBeVisible();
+}
+
+// Helper to select multiple tags via MultiSelect dropdown
+export async function selectTags(
+  page: Page,
+  testId: string,
+  tagNames: string[],
+) {
+  // Open dropdown
+  await page.getByTestId(`${testId}-button`).click();
+
+  // Select each tag
+  for (const tagName of tagNames) {
+    const slug = slugify(tagName);
+    const option = page.getByTestId(`${testId}-option-${slug}`);
+    await expect(option).toBeVisible();
+    await option.click();
+  }
+
+  // Close dropdown
+  await page.keyboard.press("Escape");
 }

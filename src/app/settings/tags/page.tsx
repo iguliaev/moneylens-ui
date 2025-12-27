@@ -108,6 +108,7 @@ export default function TagsSettingsPage() {
             onChange={(e) => setName(e.target.value)}
             className="border px-2 py-1 rounded"
             placeholder="e.g., groceries"
+            data-testid="tags-create-name"
           />
         </div>
         <div className="flex flex-col">
@@ -117,11 +118,13 @@ export default function TagsSettingsPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="border px-2 py-1 rounded"
             placeholder="Notes..."
+            data-testid="tags-create-description"
           />
         </div>
         <button
           className="px-3 py-2 border rounded flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
           disabled={loading}
+          data-testid="tags-create-submit"
         >
           <Plus size={18} />
           <span>Add</span>
@@ -142,8 +145,8 @@ export default function TagsSettingsPage() {
             {byName.map((row) => {
               const isEditing = editingId === row.id;
               return (
-                <tr key={row.id} className="border-t">
-                  <td className="p-2">
+                <tr key={row.id} className="border-t" data-testid="tags-row">
+                  <td className="p-2" data-testid="tags-row-name">
                     {isEditing ? (
                       <input
                         className="border px-2 py-1 rounded w-full"
@@ -152,6 +155,7 @@ export default function TagsSettingsPage() {
                           setDraft((d) => ({ ...d, name: e.target.value }))
                         }
                         placeholder="Tag name"
+                        data-testid="tags-row-edit-name"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -166,7 +170,7 @@ export default function TagsSettingsPage() {
                       <span>{row.name || "—"}</span>
                     )}
                   </td>
-                  <td className="p-2">
+                  <td className="p-2" data-testid="tags-row-description">
                     {isEditing ? (
                       <input
                         className="border px-2 py-1 rounded w-full"
@@ -178,6 +182,7 @@ export default function TagsSettingsPage() {
                           }))
                         }
                         placeholder="Description (optional)"
+                        data-testid="tags-row-edit-description"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -201,6 +206,7 @@ export default function TagsSettingsPage() {
                           onClick={() => void saveEdit(row.id)}
                           title="Save changes"
                           aria-label="Save changes"
+                          data-testid="tags-row-save"
                         >
                           <Save size={18} />
                         </button>
@@ -209,6 +215,7 @@ export default function TagsSettingsPage() {
                           onClick={cancelEdit}
                           title="Cancel editing"
                           aria-label="Cancel editing"
+                          data-testid="tags-row-cancel"
                         >
                           <X size={18} />
                         </button>
@@ -220,6 +227,7 @@ export default function TagsSettingsPage() {
                           onClick={() => startEdit(row)}
                           title="Edit tag"
                           aria-label="Edit tag"
+                          data-testid="tags-row-edit"
                         >
                           <Edit size={18} />
                         </button>
@@ -233,6 +241,7 @@ export default function TagsSettingsPage() {
                           }
                           onClick={() => onDelete(row.id)}
                           aria-label="Delete tag"
+                          data-testid="tags-row-delete"
                         >
                           <Trash2 size={18} />
                         </button>
