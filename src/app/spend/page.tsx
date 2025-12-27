@@ -317,9 +317,19 @@ export default function SpendPage() {
       {error && <div className="text-red-600">{error}</div>}
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total Spent (Current Month)" value={fmtCurrency(totalSpend)} className="bg-red-50 border-red-200" />
+        <StatCard
+          title="Total Spent (Current Month)"
+          value={fmtCurrency(totalSpend)}
+          className="bg-red-50 border-red-200"
+          testId="spend-total-current-month"
+        />
         {filtersApplied && (
-          <StatCard title="Total Spent (Filtered)" value={fmtCurrency(filteredTotal ?? 0)} className="bg-blue-50 border-blue-200" />
+          <StatCard
+            title="Total Spent (Filtered)"
+            value={fmtCurrency(filteredTotal ?? 0)}
+            className="bg-blue-50 border-blue-200"
+            testId="spend-total-filtered"
+          />
         )}
       </section>
 
@@ -400,7 +410,11 @@ export default function SpendPage() {
           </div>
           <div>
             <label className="block text-xs text-gray-500">Category</label>
-            <select className="border rounded px-2 py-1 w-full" value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>
+            <select
+              className="border rounded px-2 py-1 w-full"
+              value={form.categoryId}
+              onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+              data-testid="spend-form-category">
               <option value="">— Select —</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -448,7 +462,11 @@ export default function SpendPage() {
             />
           </div>
           <div className="md:col-span-6 flex justify-end">
-            <button className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50" disabled={saving} aria-label="Add new spending transaction">
+            <button
+              className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
+              disabled={saving}
+              aria-label="Add new spending transaction"
+              data-testid="spend-add-transaction">
               <Plus size={18} />
               <span>{saving ? "Saving…" : "Add Spending"}</span>
             </button>
@@ -515,7 +533,11 @@ export default function SpendPage() {
               </thead>
               <tbody>
                 {rows.map((t) => (
-                  <tr key={t.id} className="border-t align-top">
+                  <tr
+                    key={t.id}
+                    className="border-t align-top"
+                    data-testid="spend-row"
+                  >
                     <td className="py-2">
                       <input
                         type="checkbox"
@@ -538,19 +560,23 @@ export default function SpendPage() {
                         new Date(t.date).toLocaleDateString()
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="spend-row-category">
                         {editingId === t.id ? (
-            <select className="border rounded px-2 py-1" value={(editDraft.category_id as any) ?? (t as any).category_id ?? ""} onChange={(e) => setEditDraft({ ...editDraft, category_id: e.target.value })}>
-                          <option value="">— Select —</option>
-                          {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-                          ))}
-                        </select>
+                          <select
+                            className="border rounded px-2 py-1"
+                            value={(editDraft.category_id as any) ?? (t as any).category_id ?? ""}
+                            onChange={(e) => setEditDraft({ ...editDraft, category_id: e.target.value })}
+                          >
+                            <option value="">— Select —</option>
+                            {categories.map((c) => (
+                              <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                          </select>
                       ) : (
             t.category || (t as any).category_id ? (categories.find(c => c.id === (t as any).category_id)?.name ?? "—") : "—"
                       )}
                     </td>
-                    <td className="py-2 text-right">
+                    <td className="py-2 text-right" data-testid="spend-row-amount">
                       {editingId === t.id ? (
                         <input
                           type="number"
@@ -565,7 +591,7 @@ export default function SpendPage() {
                         fmtCurrency(t.amount)
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="spend-row-bank-account">
                       {editingId === t.id ? (
                         <select className="border rounded px-2 py-1" value={(editDraft as any).bank_account_id ?? (t as any).bank_account_id ?? ""} onChange={(e) => setEditDraft({ ...editDraft, bank_account_id: e.target.value })}>
                           <option value="">— Select —</option>
@@ -590,7 +616,7 @@ export default function SpendPage() {
                         (t.tags && Array.isArray(t.tags) ? (t.tags as any[]).map((tg) => (typeof tg === 'string' ? tg : tg?.name)).join(', ') : "—")
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="spend-row-notes">
                       {editingId === t.id ? (
                         <input
                           type="text"
@@ -606,7 +632,14 @@ export default function SpendPage() {
                     <td className="py-2 text-right">
                       {editingId === t.id ? (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50" disabled={saving} onClick={saveEdit} title="Save changes" aria-label="Save changes">
+                          <button
+                            className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50"
+                            disabled={saving}
+                            onClick={saveEdit}
+                            title="Save changes"
+                            aria-label="Save changes"
+                            data-testid="spend-save-edit"
+                          >
                             <Save size={18} />
                           </button>
                           <button className="px-2 py-1 rounded border hover:bg-gray-100" onClick={cancelEdit} title="Cancel editing" aria-label="Cancel editing">
@@ -615,10 +648,23 @@ export default function SpendPage() {
                         </div>
                       ) : (
                         <div className="flex gap-2 justify-end">
-                          <button className="px-2 py-1 rounded border hover:bg-blue-50" onClick={() => startEdit(t)} title="Edit transaction" aria-label="Edit transaction">
+                          <button
+                            className="px-2 py-1 rounded border hover:bg-blue-50"
+                            onClick={() => startEdit(t)}
+                            title="Edit transaction"
+                            aria-label="Edit transaction"
+                            data-testid="spend-start-edit"
+                          >
                             <Edit size={18} />
                           </button>
-                          <button className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50" disabled={saving} onClick={() => deleteOne(t.id)} title="Delete transaction" aria-label="Delete transaction">
+                          <button
+                            className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50"
+                            disabled={saving}
+                            onClick={() => deleteOne(t.id)}
+                            title="Delete transaction"
+                            aria-label="Delete transaction"
+                            data-testid="spend-delete-transaction"
+                          >
                             <Trash2 size={18} />
                           </button>
                         </div>
@@ -637,11 +683,31 @@ export default function SpendPage() {
   );
 }
 
-function StatCard({ title, value, className = "" }: { title: string; value: string; className?: string }) {
+function StatCard({
+  title,
+  value,
+  className = "",
+  testId,
+}: {
+  title: string;
+  value: string;
+  className?: string;
+  testId?: string;
+}) {
   return (
-    <div className={`border rounded p-4 ${className}`}>
-      <div className="text-sm text-gray-500">{title}</div>
-      <div className="text-2xl font-semibold">{value}</div>
+    <div className={`border rounded p-4 ${className}`} data-testid={testId}>
+      <div
+        className="text-sm text-gray-500"
+        data-testid={testId ? `${testId}-title` : undefined}
+      >
+        {title}
+      </div>
+      <div
+        className="text-2xl font-semibold"
+        data-testid={testId ? `${testId}-value` : undefined}
+      >
+        {value}
+      </div>
     </div>
   );
 }

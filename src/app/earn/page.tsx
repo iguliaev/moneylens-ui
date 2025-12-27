@@ -302,9 +302,19 @@ export default function EarnPage() {
       {error && <div className="text-red-600">{error}</div>}
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total Earned (Current Month)" value={fmtCurrency(totalEarn)} className="bg-green-50 border-green-200" />
+        <StatCard
+          title="Total Earned (Current Month)"
+          value={fmtCurrency(totalEarn)}
+          className="bg-green-50 border-green-200"
+          testId="earn-total-current-month"
+        />
         {filtersApplied && (
-          <StatCard title="Total Earned (Filtered)" value={fmtCurrency(filteredTotal ?? 0)} className="bg-blue-50 border-blue-200" />
+          <StatCard
+            title="Total Earned (Filtered)"
+            value={fmtCurrency(filteredTotal ?? 0)}
+            className="bg-blue-50 border-blue-200"
+            testId="earn-total-filtered"
+          />
         )}
       </section>
 
@@ -393,6 +403,7 @@ export default function EarnPage() {
               className="border rounded px-2 py-1 w-full"
               value={form.categoryId}
               onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+              data-testid="earn-form-category"
             >
               <option value="">— Select —</option>
               {categories.map((c) => (
@@ -507,7 +518,11 @@ export default function EarnPage() {
               </thead>
               <tbody>
                 {rows.map((t) => (
-                  <tr key={t.id} className="border-t align-top">
+                  <tr
+                    key={t.id}
+                    className="border-t align-top"
+                    data-testid="earn-row"
+                  >
                     <td className="py-2">
                       <input
                         type="checkbox"
@@ -530,7 +545,7 @@ export default function EarnPage() {
                         new Date(t.date).toLocaleDateString()
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="earn-row-category">
                       {editingId === t.id ? (
                         <select
                           className="border rounded px-2 py-1"
@@ -546,7 +561,7 @@ export default function EarnPage() {
                         t.category || (t as any).category_id ? (categories.find(c => c.id === (t as any).category_id)?.name ?? "—") : "—"
                       )}
                     </td>
-                    <td className="py-2 text-right">
+                    <td className="py-2 text-right" data-testid="earn-row-amount">
                       {editingId === t.id ? (
                         <input
                           type="number"
@@ -586,7 +601,7 @@ export default function EarnPage() {
                         (t.tags && Array.isArray(t.tags) ? (t.tags as any[]).map((tg) => (typeof tg === 'string' ? tg : tg?.name)).join(', ') : "—")
                       )}
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" data-testid="earn-row-notes">
                       {editingId === t.id ? (
                         <input
                           type="text"
@@ -655,11 +670,31 @@ export default function EarnPage() {
   );
 }
 
-function StatCard({ title, value, className = "" }: { title: string; value: string; className?: string }) {
+function StatCard({
+  title,
+  value,
+  className = "",
+  testId,
+}: {
+  title: string;
+  value: string;
+  className?: string;
+  testId?: string;
+}) {
   return (
-    <div className={`border rounded p-4 ${className}`}>
-      <div className="text-sm text-gray-500">{title}</div>
-      <div className="text-2xl font-semibold">{value}</div>
+    <div className={`border rounded p-4 ${className}`} data-testid={testId}>
+      <div
+        className="text-sm text-gray-500"
+        data-testid={testId ? `${testId}-title` : undefined}
+      >
+        {title}
+      </div>
+      <div
+        className="text-2xl font-semibold"
+        data-testid={testId ? `${testId}-value` : undefined}
+      >
+        {value}
+      </div>
     </div>
   );
 }
