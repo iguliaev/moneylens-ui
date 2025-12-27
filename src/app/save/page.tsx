@@ -305,14 +305,14 @@ export default function SavePage() {
         <StatCard
           title="Total Saved (Current Month)"
           value={fmtCurrency(totalSave)}
-          className="bg-blue-50 border-blue-200"
+          className="bg-emerald-50 border-emerald-200"
           testId="save-total-current-month"
         />
         {filtersApplied && (
           <StatCard
             title="Total Saved (Filtered)"
             value={fmtCurrency(filteredTotal ?? 0)}
-            className="bg-purple-50 border-purple-200"
+            className="bg-blue-50 border-blue-200"
             testId="save-total-filtered"
           />
         )}
