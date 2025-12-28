@@ -121,16 +121,19 @@ export default function DashboardPage() {
           title="Spent"
           value={fmtCurrency(spend)}
           className="bg-red-50 border-red-200"
+          testId="dashboard-spent-total"
         />
         <StatCard
           title="Earned"
           value={fmtCurrency(earn)}
           className="bg-green-50 border-green-200"
+          testId="dashboard-earned-total"
         />
         <StatCard
           title="Saved"
           value={fmtCurrency(save)}
           className="bg-blue-50 border-blue-200"
+          testId="dashboard-saved-total"
         />
       </section>
 
@@ -150,8 +153,8 @@ export default function DashboardPage() {
                 .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
                 .slice(0, 10)
                 .map((row, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="py-2">
+                  <tr key={i} className="border-t" data-testid="dashboard-category-row">
+                    <td className="py-2" data-testid="dashboard-category-name">
                       {row.category || "(uncategorized)"}
                     </td>
                     <td className="py-2 capitalize">{row.type}</td>
@@ -179,8 +182,8 @@ export default function DashboardPage() {
                 .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
                 .slice(0, 10)
                 .map((row, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="py-2">
+                  <tr key={i} className="border-t" data-testid="dashboard-tag-row">
+                    <td className="py-2" data-testid="dashboard-tag-names">
                       {row.tags?.join(", ") || "(no tags)"}
                     </td>
                     <td className="py-2 capitalize">{row.type}</td>
@@ -202,9 +205,10 @@ export default function DashboardPage() {
 function Panel({
   title,
   children,
-}: React.PropsWithChildren<{ title: string }>) {
+  testId,
+}: React.PropsWithChildren<{ title: string; testId?: string }>) {
   return (
-    <div className="border rounded p-4">
+    <div className="border rounded p-4" data-testid={testId}>
       <div className="text-sm text-gray-500 mb-2">{title}</div>
       {children}
     </div>

@@ -44,6 +44,11 @@ export async function loginUser(page: Page, email: string, password: string) {
   await page.waitForURL("/dashboard", { timeout: 10000 });
 }
 
+export async function logoutUser(page: Page) {
+  await page.getByRole("button", { name: "Logout" }).click();
+  await page.waitForURL("/login", { timeout: 5000 });
+}
+
 // Seed minimal reference data (categories, bank accounts, tags) for a given user
 export async function seedReferenceDataForUser(userId: string) {
   const now = new Date().toISOString();
@@ -219,4 +224,87 @@ export async function selectTags(
 
   // Close dropdown
   await page.keyboard.press("Escape");
+}
+
+// Seed transactions for a user with specific identifiable data
+export async function seedTransactionsForUser(
+  userId: string,
+  prefix: string, // e.g., "userA" or "userB" to make data identifiable
+) {
+  const now = new Date().toISOString();
+
+  // Get category IDs for the user
+  const { data: categories } = await supabaseAdmin
+    .from("categories")
+    .select("id, type, name")
+    .eq("user_id", userId);
+
+  const spendCat = categories?.find((c) => c.type === "spend");
+  const earnCat = categories?.find((c) => c.type === "earn");
+  const saveCat = categories?.find((c) => c.type === "save");
+
+  const transactions = [
+    {
+      user_id: userId,
+      date: new Date().toISOString().slice(0, 10), // Current month for dashboard visibility
+      type: "spend" as const,
+      amount: 100.0,
+      category: spendCat?.name || "Groceries",
+      category_id: spendCat?.id,
+      notes: `${prefix}-spend-transaction`,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      user_id: userId,
+      date: new Date().toISOString().slice(0, 10),
+      type: "earn" as const,
+      amount: 500.0,
+      category: earnCat?.name || "Salary",
+      category_id: earnCat?.id,
+      notes: `${prefix}-earn-transaction`,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      user_id: userId,
+      date: new Date().toISOString().slice(0, 10),
+      type: "save" as const,
+      amount: 200.0,
+      category: saveCat?.name || "Savings",
+      category_id: saveCat?.id,
+      notes: `${prefix}-save-transaction`,
+      created_at: now,
+      updated_at: now,
+    },
+  ];
+
+  const { error } = await supabaseAdmin.from("transactions").insert(transactions);
+  if (error) throw new Error(`Failed to seed transactions: ${error.message}`);
+}
+
+// Seed reference data with user-specific prefixes for identification
+export async function seedReferenceDataWithPrefix(userId: string, prefix: string) {
+  const now = new Date().toISOString();
+
+  const categories = [
+    { user_id: userId, type: "spend", name: `${prefix}-Groceries`, description: `${prefix} groceries`, created_at: now, updated_at: now },
+    { user_id: userId, type: "earn", name: `${prefix}-Salary`, description: `${prefix} salary`, created_at: now, updated_at: now },
+    { user_id: userId, type: "save", name: `${prefix}-Savings`, description: `${prefix} savings`, created_at: now, updated_at: now },
+  ];
+  const { error: catError } = await supabaseAdmin.from("categories").upsert(categories, { onConflict: "user_id,type,name" });
+  if (catError) throw new Error(`Failed to seed categories: ${catError.message}`);
+
+  const bankAccounts = [
+    { user_id: userId, name: `${prefix}-Bank`, description: `${prefix} bank account`, created_at: now, updated_at: now },
+  ];
+  const { error: baError } = await supabaseAdmin.from("bank_accounts").upsert(bankAccounts, { onConflict: "user_id,name" });
+  if (baError) throw new Error(`Failed to seed bank accounts: ${baError.message}`);
+
+  const tags = [
+    { user_id: userId, name: `${prefix}-tag1`, description: `${prefix} tag 1`, created_at: now, updated_at: now },
+    { user_id: userId, name: `${prefix}-tag2`, description: `${prefix} tag 2`, created_at: now, updated_at: now },
+  ];
+  const { error: tagError } = await supabaseAdmin.from("tags").upsert(tags, { onConflict: "user_id,name" });
+  if (tagError) throw new Error(`Failed to seed tags: ${tagError.message}`);
 }
