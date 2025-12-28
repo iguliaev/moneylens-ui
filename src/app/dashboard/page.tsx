@@ -153,7 +153,11 @@ export default function DashboardPage() {
                 .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
                 .slice(0, 10)
                 .map((row, i) => (
-                  <tr key={i} className="border-t" data-testid="dashboard-category-row">
+                  <tr
+                    key={i}
+                    className="border-t"
+                    data-testid="dashboard-category-row"
+                  >
                     <td className="py-2" data-testid="dashboard-category-name">
                       {row.category || "(uncategorized)"}
                     </td>
@@ -182,7 +186,11 @@ export default function DashboardPage() {
                 .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
                 .slice(0, 10)
                 .map((row, i) => (
-                  <tr key={i} className="border-t" data-testid="dashboard-tag-row">
+                  <tr
+                    key={i}
+                    className="border-t"
+                    data-testid="dashboard-tag-row"
+                  >
                     <td className="py-2" data-testid="dashboard-tag-names">
                       {row.tags?.join(", ") || "(no tags)"}
                     </td>

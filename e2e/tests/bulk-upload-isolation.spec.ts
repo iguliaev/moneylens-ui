@@ -13,15 +13,17 @@ test.describe("Bulk Upload Data Isolation", () => {
   let userB: { email: string; password: string; userId: string };
 
   test.beforeAll(async () => {
-    userA = await createTestUser();
-    userB = await createTestUser();
+    // Create two test users sequentially (parallel creation can cause DB race conditions)
+    userA = await createTestUser("userA");
+    userB = await createTestUser("userB");
   });
 
   test.afterAll(async () => {
-    await cleanupReferenceDataForUser(userA.userId);
-    await cleanupReferenceDataForUser(userB.userId);
-    await deleteTestUser(userA.userId);
-    await deleteTestUser(userB.userId);
+    // Guard against cleanup if beforeAll failed
+    if (userA?.userId) await cleanupReferenceDataForUser(userA.userId);
+    if (userB?.userId) await cleanupReferenceDataForUser(userB.userId);
+    if (userA?.userId) await deleteTestUser(userA.userId);
+    if (userB?.userId) await deleteTestUser(userB.userId);
   });
 
   test("data uploaded by User A is not visible to User B", async ({ page }) => {
@@ -39,12 +41,14 @@ test.describe("Bulk Upload Data Isolation", () => {
     await page.goto("/settings/categories");
     await page.getByTestId("categories-type-spend").click();
     await expect(
-      page.getByTestId("categories-row").filter({ hasText: "e2e-spend-cat" })
+      page.getByTestId("categories-row").filter({ hasText: "e2e-spend-cat" }),
     ).toBeVisible();
 
     await page.goto("/spend");
     await expect(
-      page.getByTestId("spend-row-notes").filter({ hasText: "E2E spend transaction" })
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "E2E spend transaction" }),
     ).toBeVisible();
 
     // Logout User A
@@ -57,25 +61,29 @@ test.describe("Bulk Upload Data Isolation", () => {
     await page.goto("/settings/categories");
     await page.getByTestId("categories-type-spend").click();
     await expect(
-      page.getByTestId("categories-row").filter({ hasText: "e2e-spend-cat" })
+      page.getByTestId("categories-row").filter({ hasText: "e2e-spend-cat" }),
     ).not.toBeVisible();
 
     // Verify User B cannot see User A's uploaded transactions
     await page.goto("/spend");
     await expect(
-      page.getByTestId("spend-row-notes").filter({ hasText: "E2E spend transaction" })
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "E2E spend transaction" }),
     ).not.toBeVisible();
 
     // Verify User B cannot see User A's uploaded bank accounts
     await page.goto("/settings/bank-accounts");
     await expect(
-      page.getByTestId("bank-accounts-row").filter({ hasText: "e2e-bank-account" })
+      page
+        .getByTestId("bank-accounts-row")
+        .filter({ hasText: "e2e-bank-account" }),
     ).not.toBeVisible();
 
     // Verify User B cannot see User A's uploaded tags
     await page.goto("/settings/tags");
     await expect(
-      page.getByTestId("tags-row").filter({ hasText: "e2e-tag-1" })
+      page.getByTestId("tags-row").filter({ hasText: "e2e-tag-1" }),
     ).not.toBeVisible();
   });
 });

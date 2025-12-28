@@ -14,19 +14,21 @@ test.describe("Data Reset Isolation", () => {
   let userB: { email: string; password: string; userId: string };
 
   test.beforeAll(async () => {
-    userA = await createTestUser();
-    userB = await createTestUser();
+    // Create two test users sequentially (parallel creation can cause DB race conditions)
+    userA = await createTestUser("userA");
+    userB = await createTestUser("userB");
   });
 
   test.afterAll(async () => {
-    // Best-effort cleanup
-    await cleanupReferenceDataForUser(userA.userId);
-    await cleanupReferenceDataForUser(userB.userId);
-    await deleteTestUser(userA.userId);
-    await deleteTestUser(userB.userId);
+    // Best-effort cleanup - skip userA since their data was reset
+    if (userB?.userId) await cleanupReferenceDataForUser(userB.userId);
+    if (userA?.userId) await deleteTestUser(userA.userId);
+    if (userB?.userId) await deleteTestUser(userB.userId);
   });
 
-  test("resetting User A's data does not affect User B's data", async ({ page }) => {
+  test("resetting User A's data does not affect User B's data", async ({
+    page,
+  }) => {
     // Seed data for both users
     await seedReferenceDataForUser(userA.userId);
     await seedReferenceDataForUser(userB.userId);
@@ -78,18 +80,22 @@ test.describe("Data Reset Isolation", () => {
     await page.getByTestId("settings-reset-data-button").click();
     await page.getByTestId("data-reset-confirm-input").fill("DELETE");
     await page.getByTestId("data-reset-confirm").click();
-    await expect(page.getByTestId("data-reset-success")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("data-reset-success")).toBeVisible({
+      timeout: 15000,
+    });
 
     // Verify User A's data is gone
     await page.goto("/spend");
     await expect(
-      page.getByTestId("spend-row-notes").filter({ hasText: "UserA transaction to be reset" })
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "UserA transaction to be reset" }),
     ).not.toBeVisible();
 
     await page.goto("/settings/categories");
     await page.getByTestId("categories-type-spend").click();
     await expect(
-      page.getByTestId("categories-row").filter({ hasText: "Groceries" })
+      page.getByTestId("categories-row").filter({ hasText: "Groceries" }),
     ).not.toBeVisible();
 
     // Logout User A
@@ -101,26 +107,28 @@ test.describe("Data Reset Isolation", () => {
     // User B's transaction should still exist
     await page.goto("/spend");
     await expect(
-      page.getByTestId("spend-row-notes").filter({ hasText: "UserB transaction should persist" })
+      page
+        .getByTestId("spend-row-notes")
+        .filter({ hasText: "UserB transaction should persist" }),
     ).toBeVisible();
 
     // User B's categories should still exist
     await page.goto("/settings/categories");
     await page.getByTestId("categories-type-spend").click();
     await expect(
-      page.getByTestId("categories-row").filter({ hasText: "Groceries" })
+      page.getByTestId("categories-row").filter({ hasText: "Groceries" }),
     ).toBeVisible();
 
     // User B's bank accounts should still exist
     await page.goto("/settings/bank-accounts");
     await expect(
-      page.getByTestId("bank-accounts-row").filter({ hasText: "Main Account" })
+      page.getByTestId("bank-accounts-row").filter({ hasText: "Main Account" }),
     ).toBeVisible();
 
     // User B's tags should still exist
     await page.goto("/settings/tags");
     await expect(
-      page.getByTestId("tags-row").filter({ hasText: "essentials" })
+      page.getByTestId("tags-row").filter({ hasText: "essentials" }),
     ).toBeVisible();
   });
 });

@@ -14,8 +14,10 @@ export const supabaseAdmin = createClient<Database>(
   { auth: { persistSession: false } },
 );
 
-export async function createTestUser() {
-  const email = `test-${Date.now()}@example.com`;
+export async function createTestUser(seed?: string) {
+  const email = seed
+    ? `test-${seed}-${Date.now()}@example.com`
+    : `test-${Date.now()}@example.com`;
   const password = "TestPassword123!";
 
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -234,14 +236,29 @@ export async function seedTransactionsForUser(
   const now = new Date().toISOString();
 
   // Get category IDs for the user
-  const { data: categories } = await supabaseAdmin
+  const { data: categories, error: catQueryError } = await supabaseAdmin
     .from("categories")
     .select("id, type, name")
     .eq("user_id", userId);
 
+  if (catQueryError) {
+    console.error(`Failed to query categories for ${prefix}:`, catQueryError);
+  }
+
+  // Get tag IDs for the user (to associate with transactions for Top Tags panel)
+  const { data: tags, error: tagQueryError } = await supabaseAdmin
+    .from("tags")
+    .select("id, name")
+    .eq("user_id", userId);
+
+  if (tagQueryError) {
+    console.error(`Failed to query tags for ${prefix}:`, tagQueryError);
+  }
+
   const spendCat = categories?.find((c) => c.type === "spend");
   const earnCat = categories?.find((c) => c.type === "earn");
   const saveCat = categories?.find((c) => c.type === "save");
+  const tag1 = tags?.find((t) => t.name === `${prefix}-tag1`);
 
   const transactions = [
     {
@@ -251,6 +268,7 @@ export async function seedTransactionsForUser(
       amount: 100.0,
       category: spendCat?.name || "Groceries",
       category_id: spendCat?.id,
+      tags: tag1 ? [tag1.name] : [], // Populate tags array for view compatibility
       notes: `${prefix}-spend-transaction`,
       created_at: now,
       updated_at: now,
@@ -279,32 +297,102 @@ export async function seedTransactionsForUser(
     },
   ];
 
-  const { error } = await supabaseAdmin.from("transactions").insert(transactions);
+  const { data: insertedTxns, error } = await supabaseAdmin
+    .from("transactions")
+    .insert(transactions)
+    .select("id");
   if (error) throw new Error(`Failed to seed transactions: ${error.message}`);
+
+  // Associate tag1 with the first transaction (spend) so it appears in Top Tags panel
+  if (insertedTxns && insertedTxns.length > 0 && tag1) {
+    const { error: tagError } = await supabaseAdmin
+      .from("transaction_tags")
+      .insert({ transaction_id: insertedTxns[0].id, tag_id: tag1.id });
+    if (tagError) {
+      throw new Error(`Failed to associate tags: ${tagError.message}`);
+    }
+  }
 }
 
 // Seed reference data with user-specific prefixes for identification
-export async function seedReferenceDataWithPrefix(userId: string, prefix: string) {
+export async function seedReferenceDataWithPrefix(
+  userId: string,
+  prefix: string,
+) {
   const now = new Date().toISOString();
 
-  const categories = [
-    { user_id: userId, type: "spend", name: `${prefix}-Groceries`, description: `${prefix} groceries`, created_at: now, updated_at: now },
-    { user_id: userId, type: "earn", name: `${prefix}-Salary`, description: `${prefix} salary`, created_at: now, updated_at: now },
-    { user_id: userId, type: "save", name: `${prefix}-Savings`, description: `${prefix} savings`, created_at: now, updated_at: now },
+  const categories: Array<{
+    user_id: string;
+    type: "spend" | "earn" | "save";
+    name: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+  }> = [
+    {
+      user_id: userId,
+      type: "spend",
+      name: `${prefix}-Groceries`,
+      description: `${prefix} groceries`,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      user_id: userId,
+      type: "earn",
+      name: `${prefix}-Salary`,
+      description: `${prefix} salary`,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      user_id: userId,
+      type: "save",
+      name: `${prefix}-Savings`,
+      description: `${prefix} savings`,
+      created_at: now,
+      updated_at: now,
+    },
   ];
-  const { error: catError } = await supabaseAdmin.from("categories").upsert(categories, { onConflict: "user_id,type,name" });
-  if (catError) throw new Error(`Failed to seed categories: ${catError.message}`);
+  const { error: catError } = await supabaseAdmin
+    .from("categories")
+    .upsert(categories, { onConflict: "user_id,type,name" });
+  if (catError)
+    throw new Error(`Failed to seed categories: ${catError.message}`);
 
   const bankAccounts = [
-    { user_id: userId, name: `${prefix}-Bank`, description: `${prefix} bank account`, created_at: now, updated_at: now },
+    {
+      user_id: userId,
+      name: `${prefix}-Bank`,
+      description: `${prefix} bank account`,
+      created_at: now,
+      updated_at: now,
+    },
   ];
-  const { error: baError } = await supabaseAdmin.from("bank_accounts").upsert(bankAccounts, { onConflict: "user_id,name" });
-  if (baError) throw new Error(`Failed to seed bank accounts: ${baError.message}`);
+  const { error: baError } = await supabaseAdmin
+    .from("bank_accounts")
+    .upsert(bankAccounts, { onConflict: "user_id,name" });
+  if (baError)
+    throw new Error(`Failed to seed bank accounts: ${baError.message}`);
 
   const tags = [
-    { user_id: userId, name: `${prefix}-tag1`, description: `${prefix} tag 1`, created_at: now, updated_at: now },
-    { user_id: userId, name: `${prefix}-tag2`, description: `${prefix} tag 2`, created_at: now, updated_at: now },
+    {
+      user_id: userId,
+      name: `${prefix}-tag1`,
+      description: `${prefix} tag 1`,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      user_id: userId,
+      name: `${prefix}-tag2`,
+      description: `${prefix} tag 2`,
+      created_at: now,
+      updated_at: now,
+    },
   ];
-  const { error: tagError } = await supabaseAdmin.from("tags").upsert(tags, { onConflict: "user_id,name" });
+  const { error: tagError } = await supabaseAdmin
+    .from("tags")
+    .upsert(tags, { onConflict: "user_id,name" });
   if (tagError) throw new Error(`Failed to seed tags: ${tagError.message}`);
 }
