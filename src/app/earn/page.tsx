@@ -9,6 +9,7 @@ import type {
   Tag,
 } from "@providers/data-provider/types";
 import TagsMultiSelect from "@components/tags/multi-select";
+import { StatCard } from "@/components/StatCard";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Check,
@@ -873,35 +874,6 @@ export default function EarnPage() {
       </section>
 
       {loading && <div className="opacity-60">Loading…</div>}
-    </div>
-  );
-}
-
-function StatCard({
-  title,
-  value,
-  className = "",
-  testId,
-}: {
-  title: string;
-  value: string;
-  className?: string;
-  testId?: string;
-}) {
-  return (
-    <div className={`border rounded p-4 ${className}`} data-testid={testId}>
-      <div
-        className="text-sm text-gray-500"
-        data-testid={testId ? `${testId}-title` : undefined}
-      >
-        {title}
-      </div>
-      <div
-        className="text-2xl font-semibold"
-        data-testid={testId ? `${testId}-value` : undefined}
-      >
-        {value}
-      </div>
     </div>
   );
 }
