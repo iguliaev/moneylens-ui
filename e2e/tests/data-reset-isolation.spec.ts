@@ -49,7 +49,7 @@ test.describe("Data Reset Isolation", () => {
     const spendCatA = userACats?.find((c: any) => c.type === "spend");
     const spendCatB = userBCats?.find((c: any) => c.type === "spend");
 
-    await supabaseAdmin.from("transactions").insert([
+    const { error: txnError } = await supabaseAdmin.from("transactions").insert([
       {
         user_id: userA.userId,
         date: today,
@@ -73,6 +73,7 @@ test.describe("Data Reset Isolation", () => {
         updated_at: now,
       },
     ]);
+    if (txnError) throw new Error(`Failed to insert transactions: ${txnError.message}`);
 
     // User A resets their data
     await loginUser(page, userA.email, userA.password);

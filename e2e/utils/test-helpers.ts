@@ -268,7 +268,6 @@ export async function seedTransactionsForUser(
       amount: 100.0,
       category: spendCat?.name || "Groceries",
       category_id: spendCat?.id,
-      tags: tag1 ? [tag1.name] : [], // Populate tags array for view compatibility
       notes: `${prefix}-spend-transaction`,
       created_at: now,
       updated_at: now,
