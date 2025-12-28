@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { DataApi } from "@providers/data-provider/api";
+import { StatCard } from "@/components/StatCard";
 import type {
   MonthlyTotalsRow,
   MonthlyCategoryTotalsRow,
@@ -194,23 +195,6 @@ export default function DashboardPage() {
       </section>
 
       {loading && <div className="opacity-60">Loading…</div>}
-    </div>
-  );
-}
-
-function StatCard({
-  title,
-  value,
-  className = "",
-}: {
-  title: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={`border rounded p-4 ${className}`}>
-      <div className="text-sm text-gray-500">{title}</div>
-      <div className="text-2xl font-semibold">{value}</div>
     </div>
   );
 }
