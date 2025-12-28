@@ -211,12 +211,22 @@ export function BulkUploadCard() {
         )}
 
         {file && preview && !fileError && (
-          <div className="text-sm text-blue-700 bg-blue-50 p-2 rounded">
+          <div
+            className="text-sm text-blue-700 bg-blue-50 p-2 rounded"
+            data-testid="bulk-upload-preview"
+          >
             Preview: {preview}
           </div>
         )}
 
-        {fileError && <div className="text-sm text-red-600">{fileError}</div>}
+        {fileError && (
+          <div
+            className="text-sm text-red-600"
+            data-testid="bulk-upload-file-error"
+          >
+            {fileError}
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           <button
@@ -246,24 +256,33 @@ export function BulkUploadCard() {
 
         {/* Task 3.4: Success message with detailed counts */}
         {result?.success && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+          <div
+            className="mt-4 p-3 bg-green-50 border border-green-200 rounded"
+            data-testid="bulk-upload-success"
+          >
             <div className="text-sm text-green-800 font-medium mb-1">
               Upload Successful ✓
             </div>
             <ul className="text-sm text-green-700 space-y-1">
               {result.categories_inserted ? (
-                <li>• {result.categories_inserted} categories inserted</li>
+                <li data-testid="bulk-upload-categories-count">
+                  • {result.categories_inserted} categories inserted
+                </li>
               ) : null}
               {result.bank_accounts_inserted ? (
-                <li>
+                <li data-testid="bulk-upload-bank-accounts-count">
                   • {result.bank_accounts_inserted} bank accounts inserted
                 </li>
               ) : null}
               {result.tags_inserted ? (
-                <li>• {result.tags_inserted} tags inserted</li>
+                <li data-testid="bulk-upload-tags-count">
+                  • {result.tags_inserted} tags inserted
+                </li>
               ) : null}
               {result.transactions_inserted ? (
-                <li>• {result.transactions_inserted} transactions inserted</li>
+                <li data-testid="bulk-upload-transactions-count">
+                  • {result.transactions_inserted} transactions inserted
+                </li>
               ) : null}
               {!result.categories_inserted &&
                 !result.bank_accounts_inserted &&
@@ -277,7 +296,10 @@ export function BulkUploadCard() {
 
         {/* Task 3.4: Error display with detailed messages */}
         {!result?.success && result && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+          <div
+            className="mt-4 p-3 bg-red-50 border border-red-200 rounded"
+            data-testid="bulk-upload-error"
+          >
             <div className="text-sm text-red-800 font-medium mb-2">
               Upload Failed
             </div>
