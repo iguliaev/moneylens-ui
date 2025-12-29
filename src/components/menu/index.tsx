@@ -11,6 +11,26 @@ export const Menu = () => {
   const { resources } = useResource();
   const go = useGo();
 
+  // Create a map of resource keys to routes for easy lookup
+  const resourceRoutes = new Map<string, string>();
+  resources.forEach((resource) => {
+    if (resource.list) {
+      resourceRoutes.set(resource.name, resource.list);
+    }
+  });
+  menuItems.forEach((item) => {
+    if (item.route) {
+      resourceRoutes.set(item.key, item.route);
+    }
+  });
+
+  const handleMenuClick = (info: { key: string }) => {
+    const route = resourceRoutes.get(info.key);
+    if (route) {
+      go({ to: route });
+    }
+  };
+
   const items: MenuProps["items"] = menuItems.map((item) => {
     // Find all child resources for this parent
     const children = resources
@@ -19,11 +39,6 @@ export const Menu = () => {
         key: child.name,
         icon: child.meta?.icon,
         label: child.meta?.label || child.name,
-        onClick: () => {
-          if (child.list) {
-            go({ to: child.list });
-          }
-        },
       }));
 
     if (children.length > 0) {
@@ -32,11 +47,6 @@ export const Menu = () => {
         icon: item.icon,
         label: item.label,
         children,
-        onClick: () => {
-          if (item.route) {
-            go({ to: item.route });
-          }
-        },
       };
     }
 
@@ -44,11 +54,6 @@ export const Menu = () => {
       key: item.key,
       icon: item.icon,
       label: item.label,
-      onClick: () => {
-        if (item.route) {
-          go({ to: item.route });
-        }
-      },
     };
   });
 
@@ -58,6 +63,7 @@ export const Menu = () => {
         mode="inline"
         selectedKeys={selectedKey ? [selectedKey] : []}
         items={items}
+        onClick={handleMenuClick}
         style={{ flex: 1, borderRight: 0 }}
       />
       <div style={{ padding: "16px" }}>
