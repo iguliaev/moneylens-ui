@@ -2,6 +2,16 @@
 
 import { App as AntdApp, ConfigProvider } from "antd";
 import { RefineThemes, useNotificationProvider } from "@refinedev/antd";
+import {
+  DashboardOutlined,
+  DollarOutlined,
+  RiseOutlined,
+  BankOutlined,
+  SettingOutlined,
+  TagsOutlined,
+  AppstoreOutlined,
+  CreditCardOutlined,
+} from "@ant-design/icons";
 import { DevtoolsProvider } from "@providers/devtools";
 import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
@@ -13,7 +23,7 @@ export function RefineProvider({ children }: { children: React.ReactNode }) {
   return (
     <RefineKbarProvider>
       <DevtoolsProvider>
-        <ConfigProvider theme={RefineThemes.Blue}>
+        <ConfigProvider theme={RefineThemes.Blue as any}>
           <AntdApp>
             <Refine
               routerProvider={routerProvider}
@@ -25,40 +35,60 @@ export function RefineProvider({ children }: { children: React.ReactNode }) {
                   name: "dashboard",
                   list: "/dashboard",
                   meta: { 
-                    label: "Dashboard",
-                    icon: "📊",
+                    icon: <DashboardOutlined />,
                   },
                 },
                 {
                   name: "spend",
                   list: "/spend",
                   meta: { 
-                    label: "Spend",
-                    icon: "💸",
+                    icon: <DollarOutlined />,
                   },
                 },
                 {
                   name: "earn",
                   list: "/earn",
                   meta: { 
-                    label: "Earn",
-                    icon: "💰",
+                    icon: <RiseOutlined />,
                   },
                 },
                 {
                   name: "save",
                   list: "/save",
                   meta: { 
-                    label: "Save",
-                    icon: "🏦",
+                    icon: <BankOutlined />,
                   },
                 },
                 {
                   name: "settings",
                   list: "/settings",
                   meta: { 
-                    label: "Settings",
-                    icon: "⚙️",
+                    icon: <SettingOutlined />,
+                  },
+                },
+                {
+                  name: "bank-accounts",
+                  list: "/settings/bank-accounts",
+                  meta: {
+                    parent: "settings",
+                    icon: <CreditCardOutlined />,
+                    label: "Bank Accounts",
+                  },
+                },
+                {
+                  name: "categories",
+                  list: "/settings/categories",
+                  meta: {
+                    parent: "settings",
+                    icon: <AppstoreOutlined />,
+                  },
+                },
+                {
+                  name: "tags",
+                  list: "/settings/tags",
+                  meta: {
+                    parent: "settings",
+                    icon: <TagsOutlined />,
                   },
                 },
               ]}
