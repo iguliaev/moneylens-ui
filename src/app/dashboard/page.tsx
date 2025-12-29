@@ -3,11 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { DataApi } from "@providers/data-provider/api";
 import { StatCard } from "@/components/StatCard";
+import { Table, Button, DatePicker, Space, Typography, Alert, Card, Row, Col } from "antd";
+import { LeftOutlined, RightOutlined, CalendarOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
 import type {
   MonthlyTotalsRow,
   MonthlyCategoryTotalsRow,
   MonthlyTaggedTypeTotalsRow,
 } from "@providers/data-provider/types";
+import dayjs from "dayjs";
+
+const { Title } = Typography;
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat(undefined, {
@@ -79,146 +85,161 @@ export default function DashboardPage() {
   const earn = totals.find((x) => x.type === "earn")?.total ?? 0;
   const save = totals.find((x) => x.type === "save")?.total ?? 0;
 
+  const categoryColumns: ColumnsType<MonthlyCategoryTotalsRow> = [
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (text) => text || "(uncategorized)",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (text) => <span className="capitalize">{text}</span>,
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+      align: "right",
+      render: (value) => fmtCurrency(value),
+    },
+  ];
+
+  const tagColumns: ColumnsType<MonthlyTaggedTypeTotalsRow> = [
+    {
+      title: "Tags",
+      dataIndex: "tags",
+      key: "tags",
+      render: (tags: string[]) => tags?.join(", ") || "(no tags)",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (text) => <span className="capitalize">{text}</span>,
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+      align: "right",
+      render: (value) => fmtCurrency(value),
+    },
+  ];
+
+  const sortedCategories = useMemo(
+    () =>
+      [...catTotals]
+        .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
+        .slice(0, 10),
+    [catTotals]
+  );
+
+  const sortedTags = useMemo(
+    () =>
+      [...tagTotals]
+        .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
+        .slice(0, 10),
+    [tagTotals]
+  );
+
   return (
-    <div className="p-6 space-y-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard — {monthLabel}</h1>
-        <div className="flex items-center gap-2">
-          <button
-            data-testid="prev-month"
-            className="px-3 py-1 rounded border"
-            onClick={() => setMonth((m) => addMonths(m, -1))}
-          >
-            &larr; Prev
-          </button>
-          <input
-            type="month"
-            className="border rounded px-2 py-1"
-            value={month.slice(0, 7)}
-            onChange={(e) => setMonth(`${e.target.value}-01`)}
+    <Space direction="vertical" size="large" style={{ width: "100%", padding: "24px" }}>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={2} style={{ margin: 0 }}>Dashboard — {monthLabel}</Title>
+        </Col>
+        <Col>
+          <Space>
+            <Button
+              data-testid="prev-month"
+              icon={<LeftOutlined />}
+              onClick={() => setMonth((m) => addMonths(m, -1))}
+            >
+              Prev
+            </Button>
+            <DatePicker
+              picker="month"
+              value={dayjs(month)}
+              onChange={(date) => date && setMonth(date.format("YYYY-MM-01"))}
+              suffixIcon={<CalendarOutlined />}
+            />
+            <Button
+              data-testid="this-month"
+              onClick={() => setMonth(startOfMonthISO())}
+            >
+              This Month
+            </Button>
+            <Button
+              data-testid="next-month"
+              icon={<RightOutlined />}
+              iconPosition="end"
+              onClick={() => setMonth((m) => addMonths(m, 1))}
+            >
+              Next
+            </Button>
+          </Space>
+        </Col>
+      </Row>
+
+      {error && <Alert message={error} type="error" showIcon closable />}
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={8}>
+          <StatCard
+            title="Spent"
+            value={fmtCurrency(spend)}
+            className="bg-red-50 border-red-200"
+            testId="dashboard-spent-total"
           />
-          <button
-            data-testid="this-month"
-            className="px-3 py-1 rounded border"
-            onClick={() => setMonth(startOfMonthISO())}
-          >
-            This Month
-          </button>
-          <button
-            data-testid="next-month"
-            className="px-3 py-1 rounded border"
-            onClick={() => setMonth((m) => addMonths(m, 1))}
-          >
-            Next &rarr;
-          </button>
-        </div>
-      </header>
+        </Col>
+        <Col xs={24} md={8}>
+          <StatCard
+            title="Earned"
+            value={fmtCurrency(earn)}
+            className="bg-green-50 border-green-200"
+            testId="dashboard-earned-total"
+          />
+        </Col>
+        <Col xs={24} md={8}>
+          <StatCard
+            title="Saved"
+            value={fmtCurrency(save)}
+            className="bg-blue-50 border-blue-200"
+            testId="dashboard-saved-total"
+          />
+        </Col>
+      </Row>
 
-      {error && <div className="text-red-600">{error}</div>}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={12}>
+          <Card title="Top Categories">
+            <Table
+              dataSource={sortedCategories}
+              columns={categoryColumns}
+              rowKey={(record, index) => `${record.category}-${record.type}-${index}`}
+              pagination={false}
+              size="small"
+              loading={loading}
+            />
+          </Card>
+        </Col>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard
-          title="Spent"
-          value={fmtCurrency(spend)}
-          className="bg-red-50 border-red-200"
-          testId="dashboard-spent-total"
-        />
-        <StatCard
-          title="Earned"
-          value={fmtCurrency(earn)}
-          className="bg-green-50 border-green-200"
-          testId="dashboard-earned-total"
-        />
-        <StatCard
-          title="Saved"
-          value={fmtCurrency(save)}
-          className="bg-blue-50 border-blue-200"
-          testId="dashboard-saved-total"
-        />
-      </section>
-
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Panel title="Top Categories">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="py-2">Category</th>
-                <th className="py-2">Type</th>
-                <th className="py-2 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {catTotals
-                .slice()
-                .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
-                .slice(0, 10)
-                .map((row, i) => (
-                  <tr
-                    key={i}
-                    className="border-t"
-                    data-testid="dashboard-category-row"
-                  >
-                    <td className="py-2" data-testid="dashboard-category-name">
-                      {row.category || "(uncategorized)"}
-                    </td>
-                    <td className="py-2 capitalize">{row.type}</td>
-                    <td className="py-2 text-right">
-                      {fmtCurrency(row.total)}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </Panel>
-
-        <Panel title="Top Tags">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="py-2">Tags</th>
-                <th className="py-2">Type</th>
-                <th className="py-2 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tagTotals
-                .slice()
-                .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
-                .slice(0, 10)
-                .map((row, i) => (
-                  <tr
-                    key={i}
-                    className="border-t"
-                    data-testid="dashboard-tag-row"
-                  >
-                    <td className="py-2" data-testid="dashboard-tag-names">
-                      {row.tags?.join(", ") || "(no tags)"}
-                    </td>
-                    <td className="py-2 capitalize">{row.type}</td>
-                    <td className="py-2 text-right">
-                      {fmtCurrency(row.total)}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </Panel>
-      </section>
-
-      {loading && <div className="opacity-60">Loading…</div>}
-    </div>
+        <Col xs={24} lg={12}>
+          <Card title="Top Tags">
+            <Table
+              dataSource={sortedTags}
+              columns={tagColumns}
+              rowKey={(record, index) => `${record.tags?.join("-")}-${record.type}-${index}`}
+              pagination={false}
+              size="small"
+              loading={loading}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </Space>
   );
-}
-
-function Panel({
-  title,
-  children,
-  testId,
-}: React.PropsWithChildren<{ title: string; testId?: string }>) {
-  return (
-    <div className="border rounded p-4" data-testid={testId}>
-      <div className="text-sm text-gray-500 mb-2">{title}</div>
-      {children}
-    </div>
-  );
-}
+};

@@ -12,16 +12,38 @@ import TagsMultiSelect from "@components/tags/multi-select";
 import { StatCard } from "@/components/StatCard";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import {
-  Check,
-  RotateCcw,
-  Plus,
-  ChevronLeft,
-  ChevronRight,
-  Trash2,
-  Edit,
-  Save,
-  X,
-} from "lucide-react";
+  Button,
+  DatePicker,
+  Select,
+  Input,
+  Form,
+  Space,
+  Typography,
+  Alert,
+  Card,
+  Row,
+  Col,
+  Table,
+  InputNumber,
+  Checkbox,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import {
+  CheckOutlined,
+  RedoOutlined,
+  PlusOutlined,
+  LeftOutlined,
+  RightOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
+
+const { Title } = Typography;
+const { Option } = Select;
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat(undefined, {
@@ -385,507 +407,521 @@ export default function SpendPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Spend — {monthLabel}</h1>
-        <div className="flex items-center gap-2">
-          <input
-            type="month"
-            className="border rounded px-2 py-1"
-            value={month.slice(0, 7)}
-            onChange={(e) => setMonth(`${e.target.value}-01`)}
+    <Space direction="vertical" size="large" style={{ width: "100%", padding: "24px" }}>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={2} style={{ margin: 0 }}>Spend — {monthLabel}</Title>
+        </Col>
+        <Col>
+          <DatePicker
+            picker="month"
+            value={dayjs(month)}
+            onChange={(date) => date && setMonth(date.format("YYYY-MM-01"))}
+            format="YYYY-MM"
+            suffixIcon={<CalendarOutlined />}
             data-testid="spend-month-input"
           />
-        </div>
-      </header>
+        </Col>
+      </Row>
 
-      {error && <div className="text-red-600">{error}</div>}
-
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard
-          title="Total Spent (Current Month)"
-          value={fmtCurrency(totalSpend)}
-          className="bg-red-50 border-red-200"
-          testId="spend-total-current-month"
+      {error && (
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          closable
+          onClose={() => setError(null)}
         />
-        {filtersApplied && (
+      )}
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={8}>
           <StatCard
-            title="Total Spent (Filtered)"
-            value={fmtCurrency(filteredTotal ?? 0)}
-            className="bg-blue-50 border-blue-200"
-            testId="spend-total-filtered"
+            title="Total Spent (Current Month)"
+            value={fmtCurrency(totalSpend)}
+            className="bg-red-50 border-red-200"
+            testId="spend-total-current-month"
           />
+        </Col>
+        {filtersApplied && (
+          <Col xs={24} md={8}>
+            <StatCard
+              title="Total Spent (Filtered)"
+              value={fmtCurrency(filteredTotal ?? 0)}
+              className="bg-blue-50 border-blue-200"
+              testId="spend-total-filtered"
+            />
+          </Col>
         )}
-      </section>
+      </Row>
 
-      <section className="border rounded p-4">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-          <div>
-            <label className="block text-xs text-gray-500">Category</label>
-            <select
-              className="border rounded px-2 py-1 w-full"
-              value={filters.categoryId}
-              onChange={(e) =>
-                setFilters({ ...filters, categoryId: e.target.value })
-              }
-            >
-              <option value="">All</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">From</label>
-            <input
-              type="date"
-              className="border rounded px-2 py-1 w-full"
-              value={filters.from}
-              onChange={(e) => setFilters({ ...filters, from: e.target.value })}
-              data-testid="spend-filter-from"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">To</label>
-            <input
-              type="date"
-              className="border rounded px-2 py-1 w-full"
-              value={filters.to}
-              onChange={(e) => setFilters({ ...filters, to: e.target.value })}
-              data-testid="spend-filter-to"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Bank Account</label>
-            <select
-              className="border rounded px-2 py-1 w-full"
-              value={filters.bankAccountId}
-              onChange={(e) =>
-                setFilters({ ...filters, bankAccountId: e.target.value })
-              }
-            >
-              <option value="">All</option>
-              {bankAccounts.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Tag</label>
-            <select
-              className="border rounded px-2 py-1 w-full"
-              value={filters.tag}
-              onChange={(e) => setFilters({ ...filters, tag: e.target.value })}
-            >
-              <option value="">All</option>
-              {allTags.map((t) => (
-                <option key={t.id} value={t.name}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="mt-3 flex gap-2">
-          <button
-            className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100"
-            onClick={() => {
-              setPage(1);
-              fetchTransactions();
-            }}
-            aria-label="Apply filters"
-          >
-            <Check size={18} />
-            <span>Apply</span>
-          </button>
-          <button
-            className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-gray-100"
-            onClick={() => {
-              setFilters({
-                categoryId: "",
-                from: month,
-                to: endOfMonthFromStart(month),
-                bankAccountId: "",
-                tag: "",
-              });
-              setPage(1);
-              fetchTransactions();
-            }}
-            aria-label="Reset filters"
-          >
-            <RotateCcw size={18} />
-            <span>Reset</span>
-          </button>
-        </div>
-      </section>
+      <Card title="Filters">
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Category</label>
+                <Select
+                  style={{ width: "100%" }}
+                  value={filters.categoryId || undefined}
+                  onChange={(value) =>
+                    setFilters({ ...filters, categoryId: value || "" })
+                  }
+                  placeholder="All"
+                  allowClear
+                >
+                  {categories.map((c) => (
+                    <Option key={c.id} value={c.id}>
+                      {c.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>From</label>
+                <DatePicker
+                  style={{ width: "100%" }}
+                  value={filters.from ? dayjs(filters.from) : null}
+                  onChange={(date) =>
+                    setFilters({ ...filters, from: date ? date.format("YYYY-MM-DD") : "" })
+                  }
+                  data-testid="spend-filter-from"
+                />
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>To</label>
+                <DatePicker
+                  style={{ width: "100%" }}
+                  value={filters.to ? dayjs(filters.to) : null}
+                  onChange={(date) =>
+                    setFilters({ ...filters, to: date ? date.format("YYYY-MM-DD") : "" })
+                  }
+                  data-testid="spend-filter-to"
+                />
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Bank Account</label>
+                <Select
+                  style={{ width: "100%" }}
+                  value={filters.bankAccountId || undefined}
+                  onChange={(value) =>
+                    setFilters({ ...filters, bankAccountId: value || "" })
+                  }
+                  placeholder="All"
+                  allowClear
+                >
+                  {bankAccounts.map((b) => (
+                    <Option key={b.id} value={b.id}>
+                      {b.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Tag</label>
+                <Select
+                  style={{ width: "100%" }}
+                  value={filters.tag || undefined}
+                  onChange={(value) =>
+                    setFilters({ ...filters, tag: value || "" })
+                  }
+                  placeholder="All"
+                  allowClear
+                >
+                  {allTags.map((t) => (
+                    <Option key={t.id} value={t.name}>
+                      {t.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Space>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Space>
+                <Button
+                  icon={<CheckOutlined />}
+                  onClick={() => {
+                    setPage(1);
+                    fetchTransactions();
+                  }}
+                >
+                  Apply
+                </Button>
+                <Button
+                  icon={<RedoOutlined />}
+                  onClick={() => {
+                    setFilters({
+                      categoryId: "",
+                      from: month,
+                      to: endOfMonthFromStart(month),
+                      bankAccountId: "",
+                      tag: "",
+                    });
+                    setPage(1);
+                    fetchTransactions();
+                  }}
+                >
+                  Reset
+                </Button>
+              </Space>
+            </Col>
+          </Row>
+        </Space>
+      </Card>
 
-      <section className="space-y-4">
-        <form
-          onSubmit={handleCreate}
-          className="border rounded p-4 grid grid-cols-1 md:grid-cols-6 gap-3 items-end"
-        >
-          <div>
-            <label className="block text-xs text-gray-500">Date</label>
-            <input
-              type="date"
-              className="border rounded px-2 py-1 w-full"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              required
-              data-testid="spend-form-date"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Category</label>
-            <select
-              className="border rounded px-2 py-1 w-full"
-              value={form.categoryId}
-              onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-              data-testid="spend-form-category"
-            >
-              <option value="">— Select —</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Amount</label>
-            <input
-              type="number"
-              step="0.01"
-              className="border rounded px-2 py-1 w-full"
-              value={form.amount}
-              onChange={(e) => setForm({ ...form, amount: e.target.value })}
-              required
-              data-testid="spend-form-amount"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Bank Account</label>
-            <select
-              className="border rounded px-2 py-1 w-full"
-              value={form.bank_account_id}
-              onChange={(e) =>
-                setForm({ ...form, bank_account_id: e.target.value })
-              }
-              data-testid="spend-form-bank-account"
-            >
-              <option value="">— Select —</option>
-              {bankAccounts.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Tags</label>
-            <TagsMultiSelect
-              options={allTags.map((t) => t.name)}
-              value={form.tags}
-              onChange={(vals) => setForm({ ...form, tags: vals })}
-              placeholder="Select tags"
-              testId="spend-form-tags"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500">Notes</label>
-            <input
-              type="text"
-              className="border rounded px-2 py-1 w-full"
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              data-testid="spend-form-notes"
-            />
-          </div>
-          <div className="md:col-span-6 flex justify-end">
-            <button
-              className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-green-50 disabled:opacity-50"
-              disabled={saving}
-              aria-label="Add new spending transaction"
-              data-testid="spend-add-transaction"
-            >
-              <Plus size={18} />
-              <span>{saving ? "Saving…" : "Add Spending"}</span>
-            </button>
-          </div>
+      <Card title="Add New Spending">
+        <form onSubmit={handleCreate}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Date</label>
+                <DatePicker
+                  style={{ width: "100%" }}
+                  value={dayjs(form.date)}
+                  onChange={(date) =>
+                    setForm({ ...form, date: date ? date.format("YYYY-MM-DD") : "" })
+                  }
+                  data-testid="spend-form-date"
+                  required
+                />
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Category</label>
+                <Select
+                  style={{ width: "100%" }}
+                  value={form.categoryId || undefined}
+                  onChange={(value) => setForm({ ...form, categoryId: value || "" })}
+                  placeholder="— Select —"
+                  data-testid="spend-form-category"
+                >
+                  {categories.map((c) => (
+                    <Option key={c.id} value={c.id}>
+                      {c.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Amount</label>
+                <InputNumber
+                  style={{ width: "100%" }}
+                  value={form.amount ? parseFloat(form.amount) : undefined}
+                  onChange={(value) => setForm({ ...form, amount: value?.toString() || "" })}
+                  min={0}
+                  step={0.01}
+                  precision={2}
+                  data-testid="spend-form-amount"
+                  required
+                />
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Bank Account</label>
+                <Select
+                  style={{ width: "100%" }}
+                  value={form.bank_account_id || undefined}
+                  onChange={(value) => setForm({ ...form, bank_account_id: value || "" })}
+                  placeholder="— Select —"
+                  data-testid="spend-form-bank-account"
+                >
+                  {bankAccounts.map((b) => (
+                    <Option key={b.id} value={b.id}>
+                      {b.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Tags</label>
+                <TagsMultiSelect
+                  options={allTags.map((t) => t.name)}
+                  value={form.tags}
+                  onChange={(vals) => setForm({ ...form, tags: vals })}
+                  placeholder="Select tags"
+                  testId="spend-form-tags"
+                />
+              </Space>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={4}>
+              <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                <label style={{ fontSize: "12px", color: "#8c8c8c" }}>Notes</label>
+                <Input
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  data-testid="spend-form-notes"
+                />
+              </Space>
+            </Col>
+            <Col xs={24} style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<PlusOutlined />}
+                loading={saving}
+                data-testid="spend-add-transaction"
+              >
+                {saving ? "Saving…" : "Add Spending"}
+              </Button>
+            </Col>
+          </Row>
         </form>
+      </Card>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">Transactions</h2>
-            <div className="flex items-center gap-2">
-              <button
-                className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1"
-                disabled={page <= 1 || rows.length === 0}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                aria-label="Previous page"
-                data-testid="spend-prev-page"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <span className="text-sm px-2">Page {page}</span>
-              <button
-                className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50 flex items-center gap-1"
-                disabled={!hasNextPage || rows.length === 0}
-                onClick={() => setPage((p) => p + 1)}
-                aria-label="Next page"
-                data-testid="spend-next-page"
-              >
-                <ChevronRight size={18} />
-              </button>
-              <button
-                className="px-3 py-1 rounded border flex items-center gap-2 hover:bg-red-50 disabled:opacity-50"
-                disabled={!Object.values(selected).some(Boolean) || saving}
-                onClick={deleteSelected}
-                aria-label="Delete selected transactions"
-                data-testid="spend-delete-selected"
-              >
-                <Trash2 size={18} />
-                <span>Delete Selected</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500">
-                  <th className="py-2 w-8">
-                    <input
-                      type="checkbox"
-                      aria-label="Select all on page"
-                      checked={allOnPageSelected}
-                      onChange={toggleSelectAllPage}
-                      data-testid="spend-select-all"
+      <Card
+        title="Transactions"
+        extra={
+          <Space>
+            <Button
+              icon={<LeftOutlined />}
+              disabled={page <= 1 || rows.length === 0}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              data-testid="spend-prev-page"
+            />
+            <span style={{ fontSize: "14px", padding: "0 8px" }}>Page {page}</span>
+            <Button
+              icon={<RightOutlined />}
+              disabled={!hasNextPage || rows.length === 0}
+              onClick={() => setPage((p) => p + 1)}
+              data-testid="spend-next-page"
+            />
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              disabled={!Object.values(selected).some(Boolean) || saving}
+              onClick={deleteSelected}
+              data-testid="spend-delete-selected"
+            >
+              Delete Selected
+            </Button>
+          </Space>
+        }
+      >
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", fontSize: "14px" }}>
+            <thead>
+              <tr style={{ textAlign: "left", color: "#8c8c8c" }}>
+                <th style={{ padding: "8px", width: "40px" }}>
+                  <Checkbox
+                    checked={allOnPageSelected}
+                    onChange={toggleSelectAllPage}
+                    data-testid="spend-select-all"
+                  />
+                </th>
+                <th style={{ padding: "8px" }}>Date</th>
+                <th style={{ padding: "8px" }}>Category</th>
+                <th style={{ padding: "8px", textAlign: "right" }}>Amount</th>
+                <th style={{ padding: "8px" }}>Bank Account</th>
+                <th style={{ padding: "8px" }}>Tags</th>
+                <th style={{ padding: "8px" }}>Notes</th>
+                <th style={{ padding: "8px", textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((t) => (
+                <tr
+                  key={t.id}
+                  style={{ borderTop: "1px solid #f0f0f0", verticalAlign: "top" }}
+                  data-testid="spend-row"
+                >
+                  <td style={{ padding: "8px" }}>
+                    <Checkbox
+                      checked={!!selected[t.id]}
+                      onChange={() => toggleRow(t.id)}
+                      data-testid="spend-row-select"
                     />
-                  </th>
-                  <th className="py-2">Date</th>
-                  <th className="py-2">Category</th>
-                  <th className="py-2 text-right">Amount</th>
-                  <th className="py-2">Bank Account</th>
-                  <th className="py-2">Tags</th>
-                  <th className="py-2">Notes</th>
-                  <th className="py-2 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((t) => (
-                  <tr
-                    key={t.id}
-                    className="border-t align-top"
-                    data-testid="spend-row"
-                  >
-                    <td className="py-2">
-                      <input
-                        type="checkbox"
-                        aria-label={`Select ${t.id}`}
-                        checked={!!selected[t.id]}
-                        onChange={() => toggleRow(t.id)}
-                        data-testid="spend-row-select"
+                  </td>
+                  <td style={{ padding: "8px" }}>
+                    {editingId === t.id ? (
+                      <DatePicker
+                        value={dayjs((editDraft.date as any) ?? t.date)}
+                        onChange={(date) =>
+                          setEditDraft({ ...editDraft, date: date ? date.format("YYYY-MM-DD") : "" })
+                        }
+                        data-testid="spend-edit-date"
                       />
-                    </td>
-                    <td className="py-2">
-                      {editingId === t.id ? (
-                        <input
-                          type="date"
-                          className="border rounded px-2 py-1"
-                          value={(editDraft.date as any) ?? t.date}
-                          onChange={(e) =>
-                            setEditDraft({ ...editDraft, date: e.target.value })
-                          }
-                          data-testid="spend-edit-date"
+                    ) : (
+                      new Date(t.date).toLocaleDateString()
+                    )}
+                  </td>
+                  <td style={{ padding: "8px" }} data-testid="spend-row-category">{editingId === t.id ? (
+                      <Select
+                        style={{ minWidth: "120px" }}
+                        value={
+                          (editDraft.category_id as any) ??
+                          (t as any).category_id ??
+                          undefined
+                        }
+                        onChange={(value) =>
+                          setEditDraft({
+                            ...editDraft,
+                            category_id: value || "",
+                          })
+                        }
+                        placeholder="— Select —"
+                      >
+                        {categories.map((c) => (
+                          <Option key={c.id} value={c.id}>
+                            {c.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    ) : t.category || (t as any).category_id ? (
+                      (categories.find((c) => c.id === (t as any).category_id)
+                        ?.name ?? "—")
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td
+                    style={{ padding: "8px", textAlign: "right" }}
+                    data-testid="spend-row-amount"
+                  >
+                    {editingId === t.id ? (
+                      <InputNumber
+                        style={{ width: "120px", textAlign: "right" }}
+                        value={parseFloat(String((editDraft.amount as any) ?? t.amount))}
+                        onChange={(value) =>
+                          setEditDraft({
+                            ...editDraft,
+                            amount: value?.toString() || "",
+                          })
+                        }
+                        min={0}
+                        step={0.01}
+                        precision={2}
+                        data-testid="spend-edit-amount"
+                      />
+                    ) : (
+                      fmtCurrency(t.amount)
+                    )}
+                  </td>
+                  <td style={{ padding: "8px" }} data-testid="spend-row-bank-account">
+                    {editingId === t.id ? (
+                      <Select
+                        style={{ minWidth: "120px" }}
+                        value={
+                          (editDraft as any).bank_account_id ??
+                          (t as any).bank_account_id ??
+                          undefined
+                        }
+                        onChange={(value) =>
+                          setEditDraft({
+                            ...editDraft,
+                            bank_account_id: value || "",
+                          })
+                        }
+                        placeholder="— Select —"
+                      >
+                        {bankAccounts.map((b) => (
+                          <Option key={b.id} value={b.id}>
+                            {b.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    ) : (
+                      t.bank_account || "—"
+                    )}
+                  </td>
+                  <td style={{ padding: "8px" }} data-testid="spend-row-tags">{editingId === t.id ? (
+                      <TagsMultiSelect
+                        options={allTags.map((tg) => tg.name)}
+                        value={
+                          Array.isArray(editDraft.tags)
+                            ? (editDraft.tags as string[])
+                            : t.tags && Array.isArray(t.tags)
+                              ? (t.tags as any[]).map((tg) =>
+                                  typeof tg === "string" ? tg : tg?.name,
+                                )
+                              : []
+                        }
+                        onChange={(vals) =>
+                          setEditDraft({ ...editDraft, tags: vals })
+                        }
+                        testId="spend-edit-tags"
+                      />
+                    ) : t.tags && Array.isArray(t.tags) ? (
+                      (t.tags as any[])
+                        .map((tg) => (typeof tg === "string" ? tg : tg?.name))
+                        .join(", ")
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td style={{ padding: "8px" }} data-testid="spend-row-notes">
+                    {editingId === t.id ? (
+                      <Input
+                        value={(editDraft.notes as any) ?? t.notes ?? ""}
+                        onChange={(e) =>
+                          setEditDraft({
+                            ...editDraft,
+                            notes: e.target.value,
+                          })
+                        }
+                        data-testid="spend-edit-notes"
+                      />
+                    ) : (
+                      t.notes || "—"
+                    )}
+                  </td>
+                  <td style={{ padding: "8px", textAlign: "right" }}>
+                    {editingId === t.id ? (
+                      <Space>
+                        <Button
+                          type="primary"
+                          icon={<SaveOutlined />}
+                          disabled={saving}
+                          onClick={saveEdit}
+                          title="Save changes"
+                          data-testid="spend-save-edit"
                         />
-                      ) : (
-                        new Date(t.date).toLocaleDateString()
-                      )}
-                    </td>
-                    <td className="py-2" data-testid="spend-row-category">
-                      {editingId === t.id ? (
-                        <select
-                          className="border rounded px-2 py-1"
-                          value={
-                            (editDraft.category_id as any) ??
-                            (t as any).category_id ??
-                            ""
-                          }
-                          onChange={(e) =>
-                            setEditDraft({
-                              ...editDraft,
-                              category_id: e.target.value,
-                            })
-                          }
-                        >
-                          <option value="">— Select —</option>
-                          {categories.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      ) : t.category || (t as any).category_id ? (
-                        (categories.find((c) => c.id === (t as any).category_id)
-                          ?.name ?? "—")
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td
-                      className="py-2 text-right"
-                      data-testid="spend-row-amount"
-                    >
-                      {editingId === t.id ? (
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          className="border rounded px-2 py-1 text-right"
-                          value={String((editDraft.amount as any) ?? t.amount)}
-                          onChange={(e) =>
-                            setEditDraft({
-                              ...editDraft,
-                              amount: e.target.value,
-                            })
-                          }
-                          data-testid="spend-edit-amount"
+                        <Button
+                          icon={<CloseOutlined />}
+                          onClick={cancelEdit}
+                          title="Cancel editing"
                         />
-                      ) : (
-                        fmtCurrency(t.amount)
-                      )}
-                    </td>
-                    <td className="py-2" data-testid="spend-row-bank-account">
-                      {editingId === t.id ? (
-                        <select
-                          className="border rounded px-2 py-1"
-                          value={
-                            (editDraft as any).bank_account_id ??
-                            (t as any).bank_account_id ??
-                            ""
-                          }
-                          onChange={(e) =>
-                            setEditDraft({
-                              ...editDraft,
-                              bank_account_id: e.target.value,
-                            })
-                          }
-                        >
-                          <option value="">— Select —</option>
-                          {bankAccounts.map((b) => (
-                            <option key={b.id} value={b.id}>
-                              {b.name}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        t.bank_account || "—"
-                      )}
-                    </td>
-                    <td className="py-2" data-testid="spend-row-tags">
-                      {editingId === t.id ? (
-                        <TagsMultiSelect
-                          options={allTags.map((tg) => tg.name)}
-                          value={
-                            Array.isArray(editDraft.tags)
-                              ? (editDraft.tags as string[])
-                              : t.tags && Array.isArray(t.tags)
-                                ? (t.tags as any[]).map((tg) =>
-                                    typeof tg === "string" ? tg : tg?.name,
-                                  )
-                                : []
-                          }
-                          onChange={(vals) =>
-                            setEditDraft({ ...editDraft, tags: vals })
-                          }
-                          testId="spend-edit-tags"
+                      </Space>
+                    ) : (
+                      <Space>
+                        <Button
+                          icon={<EditOutlined />}
+                          onClick={() => startEdit(t)}
+                          title="Edit transaction"
+                          data-testid="spend-start-edit"
                         />
-                      ) : t.tags && Array.isArray(t.tags) ? (
-                        (t.tags as any[])
-                          .map((tg) => (typeof tg === "string" ? tg : tg?.name))
-                          .join(", ")
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="py-2" data-testid="spend-row-notes">
-                      {editingId === t.id ? (
-                        <input
-                          type="text"
-                          className="border rounded px-2 py-1"
-                          value={(editDraft.notes as any) ?? t.notes ?? ""}
-                          onChange={(e) =>
-                            setEditDraft({
-                              ...editDraft,
-                              notes: e.target.value,
-                            })
-                          }
-                          data-testid="spend-edit-notes"
+                        <Button
+                          danger
+                          icon={<DeleteOutlined />}
+                          disabled={saving}
+                          onClick={() => deleteOne(t.id)}
+                          title="Delete transaction"
+                          data-testid="spend-delete-transaction"
                         />
-                      ) : (
-                        t.notes || "—"
-                      )}
-                    </td>
-                    <td className="py-2 text-right">
-                      {editingId === t.id ? (
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            className="px-2 py-1 rounded border hover:bg-green-50 disabled:opacity-50"
-                            disabled={saving}
-                            onClick={saveEdit}
-                            title="Save changes"
-                            aria-label="Save changes"
-                            data-testid="spend-save-edit"
-                          >
-                            <Save size={18} />
-                          </button>
-                          <button
-                            className="px-2 py-1 rounded border hover:bg-gray-100"
-                            onClick={cancelEdit}
-                            title="Cancel editing"
-                            aria-label="Cancel editing"
-                          >
-                            <X size={18} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            className="px-2 py-1 rounded border hover:bg-blue-50"
-                            onClick={() => startEdit(t)}
-                            title="Edit transaction"
-                            aria-label="Edit transaction"
-                            data-testid="spend-start-edit"
-                          >
-                            <Edit size={18} />
-                          </button>
-                          <button
-                            className="px-2 py-1 rounded border hover:bg-red-50 disabled:opacity-50"
-                            disabled={saving}
-                            onClick={() => deleteOne(t.id)}
-                            title="Delete transaction"
-                            aria-label="Delete transaction"
-                            data-testid="spend-delete-transaction"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </Space>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
-
-      {loading && <div className="opacity-60">Loading…</div>}
-    </div>
+      </Card>
+    </Space>
   );
 }

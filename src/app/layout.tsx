@@ -1,13 +1,8 @@
-import { DevtoolsProvider } from "@providers/devtools";
-import { Refine } from "@refinedev/core";
-import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
-import routerProvider from "@refinedev/nextjs-router";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
-
-import { authProviderClient } from "@providers/auth-provider/auth-provider.client";
-import { dataProvider } from "@providers/data-provider";
+import { RefineProvider } from "@/components/refine-provider";
 import "@styles/global.css";
+
 
 export const metadata: Metadata = {
   title: "Refine",
@@ -26,50 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Suspense>
-          <RefineKbarProvider>
-            <DevtoolsProvider>
-              <Refine
-                routerProvider={routerProvider}
-                authProvider={authProviderClient}
-                dataProvider={dataProvider}
-                resources={[
-                  {
-                    name: "dashboard",
-                    list: "/dashboard",
-                    meta: { label: "Dashboard" },
-                  },
-                  {
-                    name: "spend",
-                    list: "/spend",
-                    meta: { label: "Spend" },
-                  },
-                  {
-                    name: "earn",
-                    list: "/earn",
-                    meta: { label: "Earn" },
-                  },
-                  {
-                    name: "save",
-                    list: "/save",
-                    meta: { label: "Save" },
-                  },
-                  {
-                    name: "settings",
-                    list: "/settings",
-                    meta: { label: "Settings" },
-                  },
-                ]}
-                options={{
-                  syncWithLocation: true,
-                  warnWhenUnsavedChanges: true,
-                  projectId: "Sokeom-PrRZaQ-edxT0P",
-                }}
-              >
-                {children}
-                <RefineKbar />
-              </Refine>
-            </DevtoolsProvider>
-          </RefineKbarProvider>
+          <RefineProvider>
+            {children}
+          </RefineProvider>
         </Suspense>
       </body>
     </html>

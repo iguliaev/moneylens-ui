@@ -1,3 +1,5 @@
+import { Card, Statistic } from "antd";
+
 export function StatCard({
   title,
   value,
@@ -10,19 +12,12 @@ export function StatCard({
   testId?: string;
 }) {
   return (
-    <div className={`border rounded p-4 ${className}`} data-testid={testId}>
-      <div
-        className="text-sm text-gray-500"
-        data-testid={testId ? `${testId}-title` : undefined}
-      >
-        {title}
-      </div>
-      <div
-        className="text-2xl font-semibold"
-        data-testid={testId ? `${testId}-value` : undefined}
-      >
-        {value}
-      </div>
-    </div>
+    <Card className={className} data-testid={testId}>
+      <Statistic
+        title={<span data-testid={testId ? `${testId}-title` : undefined}>{title}</span>}
+        value={value}
+        valueStyle={{ fontSize: "24px", fontWeight: 600 }}
+      />
+    </Card>
   );
 }
